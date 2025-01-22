@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
@@ -20,39 +16,40 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ArmSubsystem extends SubsystemBase {
   private final SparkMax motor;
-  private final RelativeEncoder encoder;
+  private final RelativeEncoder integratedEncoder;
   private final SparkClosedLoopController closedLoopController;
+  private final DutyCycleEncoder absoluteEncoder;
 
   private final double kP = 0.1;
   private final double kI = 0.0;
   private final double kD = 0.0;
   private final double velocityFF = 0.211; // Example feedforward for velocity control
 
-  private final double gearRatio = 20.0; // Adjust based on your gearbox and sprocket ratio
+  // Gear ratio: 25:1 planetary * 3:1 chain = 75:1 total
+  private final double gearRatio = 75.0;
 
   private Rotation2d targetAngle = Rotation2d.fromDegrees(0); // Default to 0 degrees
 
-  // Mechanism visualization
-  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50); // Width, height (adjust as needed)
+  // Mechanism visualization (for AdvantageKit logging)
+  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50); // Width, height
   private final LoggedMechanismRoot2d armRoot;
   private final LoggedMechanismLigament2d armLigament;
 
   public ArmSubsystem() {
     motor = new SparkMax(9, MotorType.kBrushless);
 
-    // Create a configuration object
     SparkMaxConfig motorConfig = new SparkMaxConfig();
 
-    // Configure the encoder
     motorConfig.encoder
-        .positionConversionFactor(1)
-        .velocityConversionFactor(1);
+        .positionConversionFactor(360.0 / gearRatio) // motor rotations -> output degrees
+        .velocityConversionFactor(360.0 / gearRatio); // motor RPM -> deg/min on output
 
-    // Configure the closed loop controller
+    // Configure closed loop parameters
     motorConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(kP)
@@ -68,13 +65,13 @@ public class ArmSubsystem extends SubsystemBase {
     // Apply the configuration
     motor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    encoder = motor.getEncoder();
-
+    integratedEncoder = motor.getEncoder();
     closedLoopController = motor.getClosedLoopController();
 
-    // Initialize the mechanism visualization
-    armRoot = mechanism.getRoot("ArmRoot", 50, 25); // Root at the center (adjust coordinates)
-    armLigament = armRoot.append(new LoggedMechanismLigament2d("Arm", 20, 90)); // Length and angle (adjust length)
+    absoluteEncoder = new DutyCycleEncoder(5);
+
+    armRoot = mechanism.getRoot("ArmRoot", 50, 25);
+    armLigament = armRoot.append(new LoggedMechanismLigament2d("Arm", 20, 90));
   }
 
   public void setTargetAngle(Rotation2d targetAngle) {
@@ -85,28 +82,46 @@ public class ArmSubsystem extends SubsystemBase {
     return targetAngle;
   }
 
+  /**
+   * Returns the arm angle as measured by the Spark Max’s integrated/relative
+   * encoder.
+   * If you set the positionConversionFactor to (360.0 / gearRatio), then this
+   * will be
+   * in degrees of actual arm rotation.
+   */
+  public Rotation2d getArmAngle() {
+    // integratedEncoder.getPosition() is now in *degrees* on the arm (due to
+    // conversion factor)
+    return Rotation2d.fromDegrees(integratedEncoder.getPosition());
+  }
+
+  /**
+   * Returns the absolute angle of the arm as measured by the DutyCycleEncoder on
+   * the RIO.
+   * This should give you a true absolute position (0-360) regardless of arm
+   * motion during power-off.
+   */
+  public Rotation2d getAbsoluteAngle() {
+    double rawPosition = absoluteEncoder.get(); // [0..1)
+    double degrees = rawPosition * 360.0; // Convert 0..1 -> 0..360
+    return Rotation2d.fromDegrees(degrees);
+  }
+
   @Override
   public void periodic() {
     // Continuously maintain the target angle
-    double targetPosition = targetAngle.getDegrees() * (gearRatio / 360.0);
-    closedLoopController.setReference(targetPosition, SparkMax.ControlType.kPosition);
+    double targetPositionDeg = targetAngle.getDegrees();
+    closedLoopController.setReference(targetPositionDeg, SparkMax.ControlType.kPosition);
 
-    // Update the arm angle in the visualization
+    // Update the arm angle in the visualization (for AdvantageScope)
     armLigament.setAngle(targetAngle.getDegrees());
 
-    // Log to AdvantageScope
-    // Logger.recordOutput("Arm/Angle", getArmAngle().getDegrees());
-    // Logger.recordOutput("Arm/MotorOutput", motor.getAppliedOutput());
-    // Logger.recordOutput("Arm/EncoderPosition", encoder.getPosition());
+    Logger.recordOutput("Arm/TargetAngle", targetAngle.getDegrees());
+    Logger.recordOutput("Arm/RelativeEncoderAngle", getArmAngle().getDegrees());
+    Logger.recordOutput("Arm/AbsoluteEncoderAngle", getAbsoluteAngle().getDegrees());
+    Logger.recordOutput("Arm/MotorOutput", motor.getAppliedOutput());
+
+    // Update the mechanism diagram
     Logger.recordOutput("ArmMechanism", mechanism);
-
-    // // Optional: Display on SmartDashboard for debugging
-    // SmartDashboard.putNumber("Arm Angle (Degrees)", getArmAngle().getDegrees());
-    // SmartDashboard.putNumber("Arm Motor Output", motor.getAppliedOutput());
-    // SmartDashboard.putNumber("Arm Encoder Position", encoder.getPosition());
-  }
-
-  public Rotation2d getArmAngle() {
-    return Rotation2d.fromDegrees(encoder.getPosition() * 360.0 / gearRatio);
   }
 }

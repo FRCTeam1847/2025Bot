@@ -44,7 +44,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
-    Logger.recordMetadata("ProjectName", "Robot2025");
+    Logger.recordMetadata("Robot", "1847");
 
     if (isReal()) {
       Logger.addDataReceiver(new WPILOGWriter());
