@@ -5,10 +5,13 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 import java.io.File;
+
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +20,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
 /**
@@ -33,6 +38,7 @@ public class RobotContainer {
   double maximumSpeed = Units.feetToMeters(4.5);
   File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS5Controller driverXbox = new CommandPS5Controller(0);
@@ -81,8 +87,34 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureDefaultCommand();
+    registerNamedCommands();
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  private void configureDefaultCommand() {
+    armSubsystem.setDefaultCommand(
+        new RunCommand(
+            () -> {
+            }, // Do nothing; the subsystem will maintain the last target angle
+            armSubsystem));
+  }
+
+  private void registerNamedCommands() {
+    // Register a named command to move the arm to 45 degrees
+    NamedCommands.registerCommand(
+        "SetArmTo45",
+        new RunCommand(
+            () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(45)),
+            armSubsystem));
+
+    // Register a named command to set the arm to 0 degrees
+    NamedCommands.registerCommand(
+        "SetArmTo0",
+        new RunCommand(
+            () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(0)),
+            armSubsystem));
   }
 
   private void configureBindings() {
@@ -105,6 +137,9 @@ public class RobotContainer {
       driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
     }
+
+    driverXbox.cross().onTrue(NamedCommands.getCommand("SetArmTo45"));
+    driverXbox.square().onTrue(NamedCommands.getCommand("SetArmTo0"));
     // if (DriverStation.isTest()) {
     // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides
     // drive command above!
