@@ -1,10 +1,5 @@
 package frc.robot.subsystems;
 
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -33,12 +28,12 @@ public class ArmSubsystem extends SubsystemBase {
   // Gear ratio: 25:1 planetary * 3:1 chain = 75:1 total
   private final double gearRatio = 75.0;
 
-  private Rotation2d targetAngle = Rotation2d.fromDegrees(0); // Default to 0 degrees
+  private Rotation2d targetAngle = Rotation2d.fromDegrees(90); // Default to 0 degrees
 
-  // Mechanism visualization (for AdvantageKit logging)
-  private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50); // Width, height
-  private final LoggedMechanismRoot2d armRoot;
-  private final LoggedMechanismLigament2d armLigament;
+  // // Mechanism visualization (for AdvantageKit logging)
+  // private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50); // Width, height
+  // private final LoggedMechanismRoot2d armRoot;
+  // private final LoggedMechanismLigament2d armLigament;
 
   public ArmSubsystem() {
     motor = new SparkMax(9, MotorType.kBrushless);
@@ -70,8 +65,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     absoluteEncoder = new DutyCycleEncoder(5);
 
-    armRoot = mechanism.getRoot("ArmRoot", 50, 25);
-    armLigament = armRoot.append(new LoggedMechanismLigament2d("Arm", 20, 90));
+    // armRoot = mechanism.getRoot("ArmRoot", 50, 10);
+    // armLigament = armRoot.append(new LoggedMechanismLigament2d("Arm", 20, 90));
   }
 
   public void setTargetAngle(Rotation2d targetAngle) {
@@ -111,17 +106,17 @@ public class ArmSubsystem extends SubsystemBase {
   public void periodic() {
     // Continuously maintain the target angle
     double targetPositionDeg = targetAngle.getDegrees();
-    closedLoopController.setReference(targetPositionDeg, SparkMax.ControlType.kPosition);
+    closedLoopController.setReference(targetPositionDeg, SparkMax.ControlType.kMAXMotionPositionControl);
 
-    // Update the arm angle in the visualization (for AdvantageScope)
-    armLigament.setAngle(targetAngle.getDegrees());
+    // // Update the arm angle in the visualization (for AdvantageScope)
+    // armLigament.setAngle(targetAngle.getDegrees());
 
-    Logger.recordOutput("Arm/TargetAngle", targetAngle.getDegrees());
-    Logger.recordOutput("Arm/RelativeEncoderAngle", getArmAngle().getDegrees());
-    Logger.recordOutput("Arm/AbsoluteEncoderAngle", getAbsoluteAngle().getDegrees());
-    Logger.recordOutput("Arm/MotorOutput", motor.getAppliedOutput());
+    // Logger.recordOutput("Arm/TargetAngle", targetAngle.getDegrees());
+    // Logger.recordOutput("Arm/RelativeEncoderAngle", getArmAngle().getDegrees());
+    // Logger.recordOutput("Arm/AbsoluteEncoderAngle", getAbsoluteAngle().getDegrees());
+    // Logger.recordOutput("Arm/MotorOutput", motor.getAppliedOutput());
 
-    // Update the mechanism diagram
-    Logger.recordOutput("ArmMechanism", mechanism);
+    // // Update the mechanism diagram
+    // Logger.recordOutput("Mechanism2d/ArmMechanism", mechanism);
   }
 }

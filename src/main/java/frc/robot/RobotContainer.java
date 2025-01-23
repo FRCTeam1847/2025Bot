@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import frc.robot.Constants.Levels;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -39,6 +42,8 @@ public class RobotContainer {
   File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
+  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(armSubsystem, elevatorSubsystem, drivebase);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS5Controller driverXbox = new CommandPS5Controller(0);
@@ -94,27 +99,98 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommand() {
-    armSubsystem.setDefaultCommand(
+    // armSubsystem.setDefaultCommand(
+    // new RunCommand(
+    // () -> {
+    // }, // Do nothing; the subsystem will maintain the last target angle
+    // armSubsystem));
+    manipulatorSubsystem.setDefaultCommand(
         new RunCommand(
             () -> {
             }, // Do nothing; the subsystem will maintain the last target angle
-            armSubsystem));
+            manipulatorSubsystem));
   }
 
   private void registerNamedCommands() {
     // Register a named command to move the arm to 45 degrees
-    NamedCommands.registerCommand(
-        "SetArmTo45",
-        new RunCommand(
-            () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(45)),
-            armSubsystem));
+    // NamedCommands.registerCommand(
+    // "SetArmTo45",
+    // new RunCommand(
+    // () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(45)),
+    // armSubsystem));
 
-    // Register a named command to set the arm to 0 degrees
+    // // Register a named command to set the arm to 0 degrees
+    // NamedCommands.registerCommand(
+    // "SetArmTo0",
+    // new RunCommand(
+    // () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(0)),
+    // armSubsystem));
+    // // Register a named command to set the arm to 0 degrees
+    // NamedCommands.registerCommand(
+    // "SetHeight10",
+    // new RunCommand(
+    // () -> elevatorSubsystem.setTargetHeight(10),
+    // elevatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "SetHeight0",
+    // new RunCommand(
+    // () -> elevatorSubsystem.setTargetHeight(0),
+    // elevatorSubsystem));
     NamedCommands.registerCommand(
-        "SetArmTo0",
+        "CoralStation_Left",
         new RunCommand(
-            () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(0)),
-            armSubsystem));
+            () -> manipulatorSubsystem.setLevel(Levels.CoralStation, false),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L1_Left",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L1, false),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L2_Left",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L2, false),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L3_Left",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L3, false),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L4_Left",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L4, false),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "CoralStation_Right",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.CoralStation, true),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L1_Right",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L1, true),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L2_Right",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L2, true),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L3_Right",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L3, true),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "L4_Right",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.L4, true),
+            manipulatorSubsystem));
+    NamedCommands.registerCommand(
+        "Home",
+        new RunCommand(
+            () -> manipulatorSubsystem.setLevel(Levels.Home, false),
+            manipulatorSubsystem));
   }
 
   private void configureBindings() {
@@ -137,9 +213,21 @@ public class RobotContainer {
       driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
     }
+    // driverXbox.square().onTrue(NamedCommands.getCommand("Home"));
+    driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation_Right"));
+    driverXbox.L1().onTrue(NamedCommands.getCommand("CoralStation_Left"));
 
-    driverXbox.cross().onTrue(NamedCommands.getCommand("SetArmTo45"));
-    driverXbox.square().onTrue(NamedCommands.getCommand("SetArmTo0"));
+    driverXbox.cross().onTrue(NamedCommands.getCommand("L1_Right"));
+    driverXbox.circle().onTrue(NamedCommands.getCommand("L2_Right"));
+    driverXbox.triangle().onTrue(NamedCommands.getCommand("L3_Right"));
+    driverXbox.square().onTrue(NamedCommands.getCommand("L4_Right"));
+
+    driverXbox.povDown().onTrue(NamedCommands.getCommand("L1_Left"));
+    driverXbox.povRight().onTrue(NamedCommands.getCommand("L2_Left"));
+    driverXbox.povUp().onTrue(NamedCommands.getCommand("L3_Left"));
+    driverXbox.povLeft().onTrue(NamedCommands.getCommand("L4_Left"));
+
+    // driverXbox.circle().onTrue(NamedCommands.getCommand("SetHeight0"));
     // if (DriverStation.isTest()) {
     // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides
     // drive command above!
