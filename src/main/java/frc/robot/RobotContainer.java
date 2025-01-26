@@ -37,13 +37,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
-  double maximumSpeed = Units.feetToMeters(4.5);
   File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
-  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-  private final ArmSubsystem armSubsystem = new ArmSubsystem();
+//   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+//   private final ArmSubsystem armSubsystem = new ArmSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(armSubsystem, elevatorSubsystem, drivebase);
+  private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS5Controller driverXbox = new CommandPS5Controller(0);
@@ -52,41 +50,41 @@ public class RobotContainer {
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
    * by angular velocity.
    */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-      () -> driverXbox.getLeftY() * -1,
-      () -> driverXbox.getLeftX() * -1)
-      .withControllerRotationAxis(driverXbox::getRightY)
-      .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)
-      .allianceRelativeControl(true);
+//   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+//       () -> driverXbox.getLeftY() * -1,
+//       () -> driverXbox.getLeftX() * -1)
+//       .withControllerRotationAxis(driverXbox::getRightY)
+//       .deadband(OperatorConstants.DEADBAND)
+//       .scaleTranslation(0.8)
+//       .allianceRelativeControl(true);
 
   /**
    * Clone's the angular velocity input stream and converts it to a fieldRelative
    * input stream.
    */
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverXbox::getRightX,
-      driverXbox::getRightY)
-      .headingWhile(true);
+//   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverXbox::getRightX,
+//       driverXbox::getRightY)
+//       .headingWhile(true);
 
-  SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
-      () -> -driverXbox.getLeftY(),
-      () -> -driverXbox.getLeftX())
-      .withControllerRotationAxis(() -> driverXbox.getRawAxis(2))
-      .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)
-      .allianceRelativeControl(true);
-  // Derive the heading axis with math!
-  SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
-      .withControllerHeadingAxis(() -> Math.sin(
-          driverXbox.getRawAxis(
-              2) * Math.PI)
-          * (Math.PI * 2),
-          () -> Math.cos(
-              driverXbox.getRawAxis(
-                  2) * Math.PI)
-              *
-              (Math.PI * 2))
-      .headingWhile(true);
+//   SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
+//       () -> -driverXbox.getLeftY(),
+//       () -> -driverXbox.getLeftX())
+//       .withControllerRotationAxis(() -> driverXbox.getRawAxis(2))
+//       .deadband(OperatorConstants.DEADBAND)
+//       .scaleTranslation(0.8)
+//       .allianceRelativeControl(true);
+//   // Derive the heading axis with math!
+//   SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
+//       .withControllerHeadingAxis(() -> Math.sin(
+//           driverXbox.getRawAxis(
+//               2) * Math.PI)
+//           * (Math.PI * 2),
+//           () -> Math.cos(
+//               driverXbox.getRawAxis(
+//                   2) * Math.PI)
+//               *
+//               (Math.PI * 2))
+//       .headingWhile(true);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -94,16 +92,10 @@ public class RobotContainer {
   public RobotContainer() {
     configureDefaultCommand();
     registerNamedCommands();
-    // Configure the trigger bindings
     configureBindings();
   }
 
   private void configureDefaultCommand() {
-    // armSubsystem.setDefaultCommand(
-    // new RunCommand(
-    // () -> {
-    // }, // Do nothing; the subsystem will maintain the last target angle
-    // armSubsystem));
     manipulatorSubsystem.setDefaultCommand(
         new RunCommand(
             () -> {
@@ -112,30 +104,6 @@ public class RobotContainer {
   }
 
   private void registerNamedCommands() {
-    // Register a named command to move the arm to 45 degrees
-    // NamedCommands.registerCommand(
-    // "SetArmTo45",
-    // new RunCommand(
-    // () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(45)),
-    // armSubsystem));
-
-    // // Register a named command to set the arm to 0 degrees
-    // NamedCommands.registerCommand(
-    // "SetArmTo0",
-    // new RunCommand(
-    // () -> armSubsystem.setTargetAngle(Rotation2d.fromDegrees(0)),
-    // armSubsystem));
-    // // Register a named command to set the arm to 0 degrees
-    // NamedCommands.registerCommand(
-    // "SetHeight10",
-    // new RunCommand(
-    // () -> elevatorSubsystem.setTargetHeight(10),
-    // elevatorSubsystem));
-    // NamedCommands.registerCommand(
-    // "SetHeight0",
-    // new RunCommand(
-    // () -> elevatorSubsystem.setTargetHeight(0),
-    // elevatorSubsystem));
     NamedCommands.registerCommand(
         "CoralStation_Left",
         new RunCommand(
@@ -194,26 +162,27 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
-    Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveDirectAngleSim);
-    Command driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
-    Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleSim);
+    // Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
+    // Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    // Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
+    // Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveDirectAngleSim);
+    // Command driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
+    // Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(
+    //     driveDirectAngleSim);
 
-    if (RobotBase.isSimulation()) {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
-    } else {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-    }
+    // if (RobotBase.isSimulation()) {
+    //   drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
+    // } else {
+    //   drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    // }
 
-    if (Robot.isSimulation()) {
-      driverXbox.PS().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+    // if (Robot.isSimulation()) {
+    //   driverXbox.PS().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+    //   driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
-    }
-    // driverXbox.square().onTrue(NamedCommands.getCommand("Home"));
+    // }
+
+
     driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation_Right"));
     driverXbox.L1().onTrue(NamedCommands.getCommand("CoralStation_Left"));
 
@@ -226,31 +195,6 @@ public class RobotContainer {
     driverXbox.povRight().onTrue(NamedCommands.getCommand("L2_Left"));
     driverXbox.povUp().onTrue(NamedCommands.getCommand("L3_Left"));
     driverXbox.povLeft().onTrue(NamedCommands.getCommand("L4_Left"));
-
-    // driverXbox.circle().onTrue(NamedCommands.getCommand("SetHeight0"));
-    // if (DriverStation.isTest()) {
-    // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides
-    // drive command above!
-
-    // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock,
-    // drivebase).repeatedly());
-    // driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-    // driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    // driverXbox.back().whileTrue(drivebase.centerModulesCommand());
-    // driverXbox.leftBumper().onTrue(Commands.none());
-    // driverXbox.rightBumper().onTrue(Commands.none());
-    // } else {
-    // driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    // driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-    // driverXbox.b().whileTrue(
-    // drivebase.driveToPose(
-    // new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))));
-    // driverXbox.start().whileTrue(Commands.none());
-    // driverXbox.back().whileTrue(Commands.none());
-    // driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock,
-    // drivebase).repeatedly());
-    // driverXbox.rightBumper().onTrue(Commands.none());
-    // }
   }
 
   /**
@@ -260,10 +204,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Auto");
+    return new Command() {
+        
+    }; //drivebase.getAutonomousCommand("New Auto");
   }
 
   public void setMotorBrake(boolean brake) {
-    drivebase.setMotorBrake(brake);
+    //drivebase.setMotorBrake(brake);
   }
 }

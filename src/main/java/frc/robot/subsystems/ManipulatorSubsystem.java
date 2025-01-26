@@ -15,9 +15,9 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class ManipulatorSubsystem extends SubsystemBase {
-  private final ArmSubsystem armSubsystem;
+  // private final ArmSubsystem armSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
-  private final SwerveSubsystem drivebase;
+  // private final SwerveSubsystem drivebase;
 
   private final LoggedMechanism2d combinedMechanism2d;
   private final LoggedMechanismRoot2d baseRoot;
@@ -27,11 +27,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
   private static final int BASE_X = 50;
   private static final int BASE_Y = 10;
 
-  public ManipulatorSubsystem(ArmSubsystem armSubsystem, ElevatorSubsystem elevatorSubsystem,
-      SwerveSubsystem drivebase) {
-    this.armSubsystem = armSubsystem;
+  public ManipulatorSubsystem(ElevatorSubsystem elevatorSubsystem) {
+    // this.armSubsystem = armSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
-    this.drivebase = drivebase;
+    // this.drivebase = drivebase;
 
     // Initialize Mechanism2d
     combinedMechanism2d = new LoggedMechanism2d(100, 100);
@@ -47,13 +46,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
     SmartDashboard.putData("Combined Mechanism", combinedMechanism2d);
   }
 
-  public void updateMechanism(double elevatorHeight, double armAngle) {
+  public void updateMechanism(double elevatorHeight) {
     // Update elevator height
     elevatorLigament.setLength(elevatorHeight);
 
     // Update arm angle
-    armLigament.setAngle(90 - armAngle);
-    Logger.recordOutput("Field/Robot", new Pose3d(drivebase.getPose()));
+    // armLigament.setAngle(90 - armAngle);
+    // Logger.recordOutput("Field/Robot", new Pose3d(drivebase.getPose()));
     Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
     // Log updates for visualization
     Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
@@ -62,7 +61,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public Pose3d getManipulatorPose3d() {
     // Step 1: Get the robot's base pose in field coordinates
-    Pose2d basePose2d = drivebase.getPose(); // Assuming drivebase provides a Pose2d
+    // Pose2d basePose2d = drivebase.getPose(); // Assuming drivebase provides a
+    // Pose2d
     Translation3d baseTranslation = new Translation3d(
         0,
         0,
@@ -76,31 +76,37 @@ public class ManipulatorSubsystem extends SubsystemBase {
     final double inchesToMeters = 0.0254;
 
     // // Step 2: Elevator translation (z-axis) in robot's local frame
-     double elevatorHeightMeters = 0.0381+ elevatorSubsystem.getTargetHeight() * inchesToMeters;
-     Translation3d elevatorTranslation = new Translation3d(0, 0, elevatorHeightMeters);
+    double elevatorHeightMeters = 0.0381 + elevatorSubsystem.getTargetHeight() * inchesToMeters;
+    Translation3d elevatorTranslation = new Translation3d(0, 0, elevatorHeightMeters);
 
     // // Step 3: Arm translation relative to the elevator top
-    // double armLengthMeters = armLigament.getLength() * inchesToMeters; // Arm length in meters
-    // double armAngleRadians = Math.toRadians(90 - armSubsystem.getTargetAngle().getDegrees());
+    // double armLengthMeters = armLigament.getLength() * inchesToMeters; // Arm
+    // length in meters
+    // double armAngleRadians = Math.toRadians(90 -
+    // armSubsystem.getTargetAngle().getDegrees());
     // Translation3d armTranslation = new Translation3d(
-    //     armLengthMeters * Math.cos(armAngleRadians), // X offset in local frame
-    //     0, // Y offset (assuming no lateral movement)
-    //     armLengthMeters * Math.sin(armAngleRadians) // Z offset
+    // armLengthMeters * Math.cos(armAngleRadians), // X offset in local frame
+    // 0, // Y offset (assuming no lateral movement)
+    // armLengthMeters * Math.sin(armAngleRadians) // Z offset
     // );
 
     // // Combine elevator and arm translations in the robot's local frame
-    // Translation3d manipulatorTranslationInRobotFrame = elevatorTranslation.plus(armTranslation);
+    // Translation3d manipulatorTranslationInRobotFrame =
+    // elevatorTranslation.plus(armTranslation);
 
     // // Step 4: Transform manipulator translation into field coordinates
     // Translation3d manipulatorTranslationInFieldFrame = new Translation3d(
-    //     manipulatorTranslationInRobotFrame.getX() * basePose2d.getRotation().getCos()
-    //         - manipulatorTranslationInRobotFrame.getY() * basePose2d.getRotation().getSin(),
-    //     manipulatorTranslationInRobotFrame.getX() * basePose2d.getRotation().getSin()
-    //         + manipulatorTranslationInRobotFrame.getY() * basePose2d.getRotation().getCos(),
-    //     manipulatorTranslationInRobotFrame.getZ());
+    // manipulatorTranslationInRobotFrame.getX() * basePose2d.getRotation().getCos()
+    // - manipulatorTranslationInRobotFrame.getY() *
+    // basePose2d.getRotation().getSin(),
+    // manipulatorTranslationInRobotFrame.getX() * basePose2d.getRotation().getSin()
+    // + manipulatorTranslationInRobotFrame.getY() *
+    // basePose2d.getRotation().getCos(),
+    // manipulatorTranslationInRobotFrame.getZ());
 
     // // Combine with base translation to get the final Pose3d
-    // Translation3d combinedTranslation = baseTranslation.plus(manipulatorTranslationInFieldFrame);
+    // Translation3d combinedTranslation =
+    // baseTranslation.plus(manipulatorTranslationInFieldFrame);
 
     // Return the final Pose3d
     return new Pose3d(elevatorTranslation, baseRotation);
@@ -110,28 +116,28 @@ public class ManipulatorSubsystem extends SubsystemBase {
     switch (level) {
       case CoralStation:
         elevatorSubsystem.setTargetHeight(0);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 45 : 135));
+        // armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 45 : 135));
         break;
       case L1:
         elevatorSubsystem.setTargetHeight(2);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 0 : 180));
+        // armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 0 : 180));
         break;
       case L2:
         elevatorSubsystem.setTargetHeight(4);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 60 : 120));
+        // armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 60 : 120));
         break;
       case L3:
         elevatorSubsystem.setTargetHeight(6);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 60 : 120));
+        // armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 60 : 120));
         break;
       case L4:
         elevatorSubsystem.setTargetHeight(10);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 60 : 120));
+        // armSubsystem.setTargetAngle(Rotation2d.fromDegrees(!left ? 60 : 120));
         break;
       default:
       case Home:
         elevatorSubsystem.setTargetHeight(0);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(90));
+        // armSubsystem.setTargetAngle(Rotation2d.fromDegrees(90));
         break;
     }
   }
@@ -139,10 +145,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     double elevatorHeight = elevatorSubsystem.getTargetHeight();
-    double armAngle = armSubsystem.getTargetAngle().getDegrees();
+    // double armAngle = armSubsystem.getTargetAngle().getDegrees();
 
     // Update the visualization
-    updateMechanism(elevatorHeight, armAngle);
+    updateMechanism(elevatorHeight);
 
     // Optional: Log heights and angles for debugging
     // SmartDashboard.putNumber("Elevator Height", elevatorHeight);

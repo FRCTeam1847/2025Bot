@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -13,7 +14,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 public class ElevatorSubsystem extends SubsystemBase {
 
   private final SparkMax leftMotor;
-  private final SparkMax rightMotor;
+   private final SparkMax rightMotor;
   private final RelativeEncoder leftEncoder;
   private final SparkClosedLoopController leftClosedLoopController;
   // private final LoggedMechanism2d mechanism2d;
@@ -28,8 +29,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private double currentHeight = 0.0;
 
   public ElevatorSubsystem() {
-    leftMotor = new SparkMax(10, MotorType.kBrushless);
-    rightMotor = new SparkMax(11, MotorType.kBrushless);
+    leftMotor = new SparkMax(11, MotorType.kBrushless);
+    rightMotor = new SparkMax(10, MotorType.kBrushless);
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     leftConfig.encoder
@@ -38,11 +39,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(kP).i(kI).d(kD).outputRange(-1, 1);
+    leftConfig.inverted(false);
     leftMotor.configure(leftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    SparkMaxConfig rightConfig = leftConfig;
-    rightConfig.follow(10);
-    rightMotor.configure(rightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+     SparkMaxConfig rightConfig = new SparkMaxConfig();
+    rightConfig.follow(11, true);
+
+     rightMotor.configure(rightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     leftEncoder = leftMotor.getEncoder();
     leftClosedLoopController = leftMotor.getClosedLoopController();
