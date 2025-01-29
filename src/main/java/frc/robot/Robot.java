@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import au.grapplerobotics.CanBridge;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -24,13 +26,13 @@ public class Robot extends LoggedRobot {
 
   private static Robot instance;
   private Command m_autonomousCommand;
-
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
 
   public Robot() {
     instance = this;
+    CanBridge.runTCP();
   }
 
   public static Robot getInstance() {

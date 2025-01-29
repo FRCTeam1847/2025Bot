@@ -8,6 +8,7 @@ import frc.robot.Constants.Levels;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -38,10 +39,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
  */
 public class RobotContainer {
   File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
-//   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-//   private final ArmSubsystem armSubsystem = new ArmSubsystem();
-  private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-  private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem);
+  // private final SwerveSubsystem drivebase = new SwerveSubsystem(new
+  // File(Filesystem.getDeployDirectory(), "swerve"));
+  // private final ArmSubsystem armSubsystem = new ArmSubsystem();
+  // private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+  // private final ManipulatorSubsystem manipulatorSubsystem = new
+  // ManipulatorSubsystem(elevatorSubsystem);
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandPS5Controller driverXbox = new CommandPS5Controller(0);
@@ -50,41 +54,44 @@ public class RobotContainer {
    * Converts driver input into a field-relative ChassisSpeeds that is controlled
    * by angular velocity.
    */
-//   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-//       () -> driverXbox.getLeftY() * -1,
-//       () -> driverXbox.getLeftX() * -1)
-//       .withControllerRotationAxis(driverXbox::getRightY)
-//       .deadband(OperatorConstants.DEADBAND)
-//       .scaleTranslation(0.8)
-//       .allianceRelativeControl(true);
+  // SwerveInputStream driveAngularVelocity =
+  // SwerveInputStream.of(drivebase.getSwerveDrive(),
+  // () -> driverXbox.getLeftY() * -1,
+  // () -> driverXbox.getLeftX() * -1)
+  // .withControllerRotationAxis(driverXbox::getRightY)
+  // .deadband(OperatorConstants.DEADBAND)
+  // .scaleTranslation(0.8)
+  // .allianceRelativeControl(true);
 
   /**
    * Clone's the angular velocity input stream and converts it to a fieldRelative
    * input stream.
    */
-//   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverXbox::getRightX,
-//       driverXbox::getRightY)
-//       .headingWhile(true);
+  // SwerveInputStream driveDirectAngle =
+  // driveAngularVelocity.copy().withControllerHeadingAxis(driverXbox::getRightX,
+  // driverXbox::getRightY)
+  // .headingWhile(true);
 
-//   SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
-//       () -> -driverXbox.getLeftY(),
-//       () -> -driverXbox.getLeftX())
-//       .withControllerRotationAxis(() -> driverXbox.getRawAxis(2))
-//       .deadband(OperatorConstants.DEADBAND)
-//       .scaleTranslation(0.8)
-//       .allianceRelativeControl(true);
-//   // Derive the heading axis with math!
-//   SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
-//       .withControllerHeadingAxis(() -> Math.sin(
-//           driverXbox.getRawAxis(
-//               2) * Math.PI)
-//           * (Math.PI * 2),
-//           () -> Math.cos(
-//               driverXbox.getRawAxis(
-//                   2) * Math.PI)
-//               *
-//               (Math.PI * 2))
-//       .headingWhile(true);
+  // SwerveInputStream driveAngularVelocitySim =
+  // SwerveInputStream.of(drivebase.getSwerveDrive(),
+  // () -> -driverXbox.getLeftY(),
+  // () -> -driverXbox.getLeftX())
+  // .withControllerRotationAxis(() -> driverXbox.getRawAxis(2))
+  // .deadband(OperatorConstants.DEADBAND)
+  // .scaleTranslation(0.8)
+  // .allianceRelativeControl(true);
+  // // Derive the heading axis with math!
+  // SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
+  // .withControllerHeadingAxis(() -> Math.sin(
+  // driverXbox.getRawAxis(
+  // 2) * Math.PI)
+  // * (Math.PI * 2),
+  // () -> Math.cos(
+  // driverXbox.getRawAxis(
+  // 2) * Math.PI)
+  // *
+  // (Math.PI * 2))
+  // .headingWhile(true);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -96,105 +103,134 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommand() {
-    manipulatorSubsystem.setDefaultCommand(
+    // manipulatorSubsystem.setDefaultCommand(
+    // new RunCommand(
+    // () -> {
+    // }, // Do nothing; the subsystem will maintain the last target angle
+    // manipulatorSubsystem));
+    intakeSubsystem.setDefaultCommand(
         new RunCommand(
             () -> {
-            }, // Do nothing; the subsystem will maintain the last target angle
-            manipulatorSubsystem));
+            },
+            intakeSubsystem));
   }
 
   private void registerNamedCommands() {
+    // NamedCommands.registerCommand(
+    // "CoralStation_Left",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.CoralStation, false),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L1_Left",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L1, false),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L2_Left",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L2, false),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L3_Left",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L3, false),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L4_Left",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L4, false),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "CoralStation_Right",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.CoralStation, true),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L1_Right",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L1, true),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L2_Right",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L2, true),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L3_Right",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L3, true),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "L4_Right",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.L4, true),
+    // manipulatorSubsystem));
+    // NamedCommands.registerCommand(
+    // "Home",
+    // new RunCommand(
+    // () -> manipulatorSubsystem.setLevel(Levels.Home, false),
+    // manipulatorSubsystem));
     NamedCommands.registerCommand(
-        "CoralStation_Left",
+        "intake",
         new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.CoralStation, false),
-            manipulatorSubsystem));
+            () -> intakeSubsystem.intake(),
+            intakeSubsystem));
     NamedCommands.registerCommand(
-        "L1_Left",
+        "release",
         new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L1, false),
-            manipulatorSubsystem));
+            () -> intakeSubsystem.release(),
+            intakeSubsystem));
     NamedCommands.registerCommand(
-        "L2_Left",
+        "intake_stop",
         new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L2, false),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "L3_Left",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L3, false),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "L4_Left",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L4, false),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "CoralStation_Right",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.CoralStation, true),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "L1_Right",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L1, true),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "L2_Right",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L2, true),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "L3_Right",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L3, true),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "L4_Right",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.L4, true),
-            manipulatorSubsystem));
-    NamedCommands.registerCommand(
-        "Home",
-        new RunCommand(
-            () -> manipulatorSubsystem.setLevel(Levels.Home, false),
-            manipulatorSubsystem));
+            () -> intakeSubsystem.stopIntake(),
+            intakeSubsystem));
   }
 
   private void configureBindings() {
-    // Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
-    // Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    // Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
-    // Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveDirectAngleSim);
-    // Command driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
-    // Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(
-    //     driveDirectAngleSim);
+    // Command driveFieldOrientedDirectAngle =
+    // drivebase.driveFieldOriented(driveDirectAngle);
+    // Command driveFieldOrientedAnglularVelocity =
+    // drivebase.driveFieldOriented(driveAngularVelocity);
+    // Command driveSetpointGen =
+    // drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
+    // Command driveFieldOrientedDirectAngleSim =
+    // drivebase.driveFieldOriented(driveDirectAngleSim);
+    // Command driveFieldOrientedAnglularVelocitySim =
+    // drivebase.driveFieldOriented(driveAngularVelocitySim);
+    // Command driveSetpointGenSim =
+    // drivebase.driveWithSetpointGeneratorFieldRelative(
+    // driveDirectAngleSim);
 
     // if (RobotBase.isSimulation()) {
-    //   drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
+    // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
     // } else {
-    //   drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    // drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     // }
 
     // if (Robot.isSimulation()) {
-    //   driverXbox.PS().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-    //   driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+    // driverXbox.PS().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new
+    // Pose2d(3, 3, new Rotation2d()))));
+    // driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
 
     // }
 
+    driverXbox.R2().whileTrue(NamedCommands.getCommand("intake")).onFalse(NamedCommands.getCommand("intake_stop"));
+    driverXbox.L2().whileTrue(NamedCommands.getCommand("release")).onFalse(NamedCommands.getCommand("intake_stop"));
 
-    driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation_Right"));
-    driverXbox.L1().onTrue(NamedCommands.getCommand("CoralStation_Left"));
+    // driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation_Right"));
+    // driverXbox.L1().onTrue(NamedCommands.getCommand("CoralStation_Left"));
 
-    driverXbox.cross().onTrue(NamedCommands.getCommand("L1_Right"));
-    driverXbox.circle().onTrue(NamedCommands.getCommand("L2_Right"));
-    driverXbox.triangle().onTrue(NamedCommands.getCommand("L3_Right"));
-    driverXbox.square().onTrue(NamedCommands.getCommand("L4_Right"));
+    // driverXbox.cross().onTrue(NamedCommands.getCommand("L1_Right"));
+    // driverXbox.circle().onTrue(NamedCommands.getCommand("L2_Right"));
+    // driverXbox.triangle().onTrue(NamedCommands.getCommand("L3_Right"));
+    // driverXbox.square().onTrue(NamedCommands.getCommand("L4_Right"));
 
-    driverXbox.povDown().onTrue(NamedCommands.getCommand("L1_Left"));
-    driverXbox.povRight().onTrue(NamedCommands.getCommand("L2_Left"));
-    driverXbox.povUp().onTrue(NamedCommands.getCommand("L3_Left"));
-    driverXbox.povLeft().onTrue(NamedCommands.getCommand("L4_Left"));
+    // driverXbox.povDown().onTrue(NamedCommands.getCommand("L1_Left"));
+    // driverXbox.povRight().onTrue(NamedCommands.getCommand("L2_Left"));
+    // driverXbox.povUp().onTrue(NamedCommands.getCommand("L3_Left"));
+    // driverXbox.povLeft().onTrue(NamedCommands.getCommand("L4_Left"));
   }
 
   /**
@@ -205,11 +241,11 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return new Command() {
-        
-    }; //drivebase.getAutonomousCommand("New Auto");
+
+    }; // drivebase.getAutonomousCommand("New Auto");
   }
 
   public void setMotorBrake(boolean brake) {
-    //drivebase.setMotorBrake(brake);
+    // drivebase.setMotorBrake(brake);
   }
 }
