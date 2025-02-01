@@ -5,15 +5,27 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Left Start"
+            "name": "Home"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Start-Coral"
+            "pathName": "Start-F4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "F4-Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Coral-E4"
           }
         }
       ]

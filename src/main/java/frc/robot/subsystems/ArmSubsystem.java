@@ -109,18 +109,5 @@ public class ArmSubsystem extends SubsystemBase {
     // Continuously maintain the target angle
     double targetPositionDeg = targetAngle.getDegrees();
     closedLoopController.setReference(targetPositionDeg, SparkMax.ControlType.kMAXMotionPositionControl);
-    System.out.println("Angle: " + getAbsoluteAngle());
-
-    // // Update the arm angle in the visualization (for AdvantageScope)
-    // armLigament.setAngle(targetAngle.getDegrees());
-
-    // Logger.recordOutput("Arm/TargetAngle", targetAngle.getDegrees());
-    // Logger.recordOutput("Arm/RelativeEncoderAngle", getArmAngle().getDegrees());
-    // Logger.recordOutput("Arm/AbsoluteEncoderAngle",
-    // getAbsoluteAngle().getDegrees());
-    // Logger.recordOutput("Arm/MotorOutput", motor.getAppliedOutput());
-
-    // // Update the mechanism diagram
-    // Logger.recordOutput("Mechanism2d/ArmMechanism", mechanism);
   }
 }

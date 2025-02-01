@@ -57,12 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
       if (measurement.ambient < 100 && intakeSpeed > 0) {
         intakeSpeed = 0;
       }
-    } else {
-      System.out.println("Oh no! The target is out of range, or we can't get a reliable measurement!");
-      // You can still use distance_mm in here, if you're ok tolerating a clamped
-      // value or an unreliable measurement.
-    }
+    } 
     intakeMotor.set(intakeSpeed);
-    // This method will be called once per scheduler run
   }
 }

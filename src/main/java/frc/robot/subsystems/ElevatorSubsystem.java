@@ -14,12 +14,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 public class ElevatorSubsystem extends SubsystemBase {
 
   private final SparkMax leftMotor;
-   private final SparkMax rightMotor;
+  private final SparkMax rightMotor;
   private final RelativeEncoder leftEncoder;
   private final SparkClosedLoopController leftClosedLoopController;
-  // private final LoggedMechanism2d mechanism2d;
-  // private final LoggedMechanismRoot2d elevatorRoot;
-  // private final LoggedMechanismLigament2d elevatorLigament;
 
   private static final double DIST_PER_ROT_IN = (Math.PI * 2.0) / 20.0; // Spool diameter divided by gear ratio
   private static final double kP = 0.1;
@@ -42,20 +39,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     leftConfig.inverted(false);
     leftMotor.configure(leftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-     SparkMaxConfig rightConfig = new SparkMaxConfig();
+    SparkMaxConfig rightConfig = new SparkMaxConfig();
     rightConfig.follow(11, true);
 
-     rightMotor.configure(rightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    rightMotor.configure(rightConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     leftEncoder = leftMotor.getEncoder();
     leftClosedLoopController = leftMotor.getClosedLoopController();
-
-    // mechanism2d = new LoggedMechanism2d(100, 100);
-    // elevatorRoot = mechanism2d.getRoot("ElevatorRoot", 50, 10);
-    // elevatorLigament = elevatorRoot.append(new
-    // LoggedMechanismLigament2d("Elevator", 0, 90));
-
-    // SmartDashboard.putData("Elevator Mechanism", mechanism2d);
 
     leftEncoder.setPosition(0);
   }
@@ -64,21 +54,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     currentHeight = heightInches;
     heightInches = Math.max(0, Math.min(maxHeight, heightInches)); // Clamp the height
     leftClosedLoopController.setReference(heightInches / DIST_PER_ROT_IN, ControlType.kPosition);
-    // updateMechanism2d(heightInches);
   }
 
   public double getTargetHeight() {
     return currentHeight;
   }
-  // private void updateMechanism2d(double heightInches) {
-  // elevatorLigament.setLength(heightInches);
-  // }
 
   @Override
   public void periodic() {
-    // double currentHeight = leftEncoder.getPosition() * DIST_PER_ROT_IN;
-    // SmartDashboard.putNumber("Elevator Height", currentHeight);
-    // Logger.recordOutput("Mechanism2d/Elevator", mechanism2d);
+
   }
 
   public void resetEncoder() {
