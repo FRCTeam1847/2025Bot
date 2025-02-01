@@ -27,11 +27,13 @@ public class ArmSubsystem extends SubsystemBase {
 
   // Gear ratio: 25:1 planetary * 3:1 chain = 75:1 total
   private final double gearRatio = 75.0;
+  private final double angleOffset = 77;
 
   private Rotation2d targetAngle = Rotation2d.fromDegrees(90); // Default to 0 degrees
 
   // // Mechanism visualization (for AdvantageKit logging)
-  // private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50); // Width, height
+  // private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50);
+  // // Width, height
   // private final LoggedMechanismRoot2d armRoot;
   // private final LoggedMechanismLigament2d armLigament;
 
@@ -63,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase {
     integratedEncoder = motor.getEncoder();
     closedLoopController = motor.getClosedLoopController();
 
-    absoluteEncoder = new DutyCycleEncoder(5);
+    absoluteEncoder = new DutyCycleEncoder(9);
 
     // armRoot = mechanism.getRoot("ArmRoot", 50, 10);
     // armLigament = armRoot.append(new LoggedMechanismLigament2d("Arm", 20, 90));
@@ -99,7 +101,7 @@ public class ArmSubsystem extends SubsystemBase {
   public Rotation2d getAbsoluteAngle() {
     double rawPosition = absoluteEncoder.get(); // [0..1)
     double degrees = rawPosition * 360.0; // Convert 0..1 -> 0..360
-    return Rotation2d.fromDegrees(degrees);
+    return Rotation2d.fromDegrees(degrees-angleOffset);
   }
 
   @Override
@@ -107,13 +109,15 @@ public class ArmSubsystem extends SubsystemBase {
     // Continuously maintain the target angle
     double targetPositionDeg = targetAngle.getDegrees();
     closedLoopController.setReference(targetPositionDeg, SparkMax.ControlType.kMAXMotionPositionControl);
+    System.out.println("Angle: " + getAbsoluteAngle());
 
     // // Update the arm angle in the visualization (for AdvantageScope)
     // armLigament.setAngle(targetAngle.getDegrees());
 
     // Logger.recordOutput("Arm/TargetAngle", targetAngle.getDegrees());
     // Logger.recordOutput("Arm/RelativeEncoderAngle", getArmAngle().getDegrees());
-    // Logger.recordOutput("Arm/AbsoluteEncoderAngle", getAbsoluteAngle().getDegrees());
+    // Logger.recordOutput("Arm/AbsoluteEncoderAngle",
+    // getAbsoluteAngle().getDegrees());
     // Logger.recordOutput("Arm/MotorOutput", motor.getAppliedOutput());
 
     // // Update the mechanism diagram

@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeSubsystem extends SubsystemBase {
   private LaserCan lc;
   private final SparkMax intakeMotor;
-  private final double speed = 0.3;
+  private final double speed = 0.5;
   private double intakeSpeed = 0;
 
   /** Creates a new IntakeSubsystem. */
@@ -30,7 +30,7 @@ public class IntakeSubsystem extends SubsystemBase {
     try {
       lc.setRangingMode(LaserCan.RangingMode.SHORT);
       lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
-      lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+      lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
     } catch (ConfigurationFailedException e) {
       System.out.println("Configuration failed! " + e);
     }
@@ -38,10 +38,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void intake() {
     intakeSpeed = speed;
+
   }
 
   public void release() {
-    intakeSpeed = -speed;
+    intakeSpeed = -0.6;
   }
 
   public void stopIntake() {
@@ -53,6 +54,9 @@ public class IntakeSubsystem extends SubsystemBase {
     LaserCan.Measurement measurement = lc.getMeasurement();
     if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       System.out.println("The target is " + measurement.distance_mm + "mm away!");
+      if (measurement.ambient < 100 && intakeSpeed > 0) {
+        intakeSpeed = 0;
+      }
     } else {
       System.out.println("Oh no! The target is out of range, or we can't get a reliable measurement!");
       // You can still use distance_mm in here, if you're ok tolerating a clamped
