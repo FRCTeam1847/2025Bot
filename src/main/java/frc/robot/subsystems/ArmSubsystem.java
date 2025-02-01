@@ -31,12 +31,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   private Rotation2d targetAngle = Rotation2d.fromDegrees(90); // Default to 0 degrees
 
-  // // Mechanism visualization (for AdvantageKit logging)
-  // private final LoggedMechanism2d mechanism = new LoggedMechanism2d(100, 50);
-  // // Width, height
-  // private final LoggedMechanismRoot2d armRoot;
-  // private final LoggedMechanismLigament2d armLigament;
-
   public ArmSubsystem() {
     motor = new SparkMax(9, MotorType.kBrushless);
 
@@ -67,12 +61,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     absoluteEncoder = new DutyCycleEncoder(9);
 
-    // armRoot = mechanism.getRoot("ArmRoot", 50, 10);
-    // armLigament = armRoot.append(new LoggedMechanismLigament2d("Arm", 20, 90));
   }
 
   public void setTargetAngle(Rotation2d targetAngle) {
     this.targetAngle = targetAngle;
+    closedLoopController.setReference(targetAngle.getDegrees(), SparkMax.ControlType.kMAXMotionPositionControl);
   }
 
   public Rotation2d getTargetAngle() {
@@ -87,8 +80,6 @@ public class ArmSubsystem extends SubsystemBase {
    * in degrees of actual arm rotation.
    */
   public Rotation2d getArmAngle() {
-    // integratedEncoder.getPosition() is now in *degrees* on the arm (due to
-    // conversion factor)
     return Rotation2d.fromDegrees(integratedEncoder.getPosition());
   }
 
@@ -106,8 +97,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Continuously maintain the target angle
-    double targetPositionDeg = targetAngle.getDegrees();
-    closedLoopController.setReference(targetPositionDeg, SparkMax.ControlType.kMAXMotionPositionControl);
+    
   }
 }
