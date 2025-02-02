@@ -208,13 +208,13 @@ public class RobotContainer {
 
                 driverXbox.cross().onTrue(NamedCommands.getCommand("L1_Right"));
                 driverXbox.circle().onTrue(NamedCommands.getCommand("L2_Right"));
-                driverXbox.triangle().onTrue(NamedCommands.getCommand("L3_Right"));
-                driverXbox.square().onTrue(NamedCommands.getCommand("L4_Right"));
+                driverXbox.triangle().onTrue(NamedCommands.getCommand("L4_Right"));
+                driverXbox.square().onTrue(NamedCommands.getCommand("L3_Right"));
 
                 driverXbox.povDown().onTrue(NamedCommands.getCommand("L1_Left"));
                 driverXbox.povRight().onTrue(NamedCommands.getCommand("L2_Left"));
-                driverXbox.povUp().onTrue(NamedCommands.getCommand("L3_Left"));
-                driverXbox.povLeft().onTrue(NamedCommands.getCommand("L4_Left"));
+                driverXbox.povUp().onTrue(NamedCommands.getCommand("L4_Left"));
+                driverXbox.povLeft().onTrue(NamedCommands.getCommand("L3_Left"));
         }
 
         /**
