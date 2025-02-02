@@ -66,13 +66,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public Pose3d getManipulatorPose3d() {
     // Conversion factor: inches to meters.
-    final double inchesToMeters = 0.1;
+    final double inchesToMeters = 0.2;
 
     // --- Elevator Contribution ---
     // Get the elevator height (in inches) and convert to meters.
     double elevatorHeightMeters = elevatorSubsystem.getTargetHeight() * inchesToMeters;
     // Use the elevator's position for the translation. (Here, only Z changes.)
-    Translation3d elevatorTranslation = new Translation3d(0, 0, elevatorHeightMeters + .5);
+    Translation3d elevatorTranslation = new Translation3d(0, 0, elevatorHeightMeters + .55);
 
     // --- Arm Contribution (Rotation Only) ---
     // Get the current arm angle (in degrees) and convert to radians.
@@ -94,20 +94,20 @@ public class ManipulatorSubsystem extends SubsystemBase {
         armSubsystem.setTargetAngle(Rotation2d.fromDegrees(left ? -45 : 45));
         break;
       case L1:
-        elevatorSubsystem.setTargetHeight(2);
+        elevatorSubsystem.setTargetHeight(0.6);
         armSubsystem.setTargetAngle(Rotation2d.fromDegrees(left ? -90 : 90));
         break;
       case L2:
-        elevatorSubsystem.setTargetHeight(4);
+        elevatorSubsystem.setTargetHeight(0.6);
         armSubsystem.setTargetAngle(Rotation2d.fromDegrees(left ? -60 : 60));
         break;
       case L3:
-        elevatorSubsystem.setTargetHeight(6);
+        elevatorSubsystem.setTargetHeight(2.5);
         armSubsystem.setTargetAngle(Rotation2d.fromDegrees(left ? -60 : 60));
         break;
       case L4:
-        elevatorSubsystem.setTargetHeight(10);
-        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(left ? -60 : 60));
+        elevatorSubsystem.setTargetHeight(6.8);
+        armSubsystem.setTargetAngle(Rotation2d.fromDegrees(left ? -110 : 90));
         break;
       default:
       case Home:
