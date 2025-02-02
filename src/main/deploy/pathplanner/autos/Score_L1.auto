@@ -13,25 +13,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Start-F4"
+            "pathName": "Center-L1"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "F4-Coral"
+            "name": "L1_Left"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Coral-E4"
+            "name": "Release"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeStop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Home"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "SimTest",
+  "folder": null,
   "choreoAuto": false
 }

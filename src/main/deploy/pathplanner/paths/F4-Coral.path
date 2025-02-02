@@ -88,7 +88,7 @@
     "rotation": -126.2538377374448
   },
   "reversed": false,
-  "folder": null,
+  "folder": "SimTest",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -143.98521356098408
