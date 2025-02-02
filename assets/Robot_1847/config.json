@@ -1,0 +1,13 @@
+{
+  "name": "1847",
+  "rotations": [{ "axis": "x", "degrees": 90 }],
+  "position": [0, 0, 0.0381],
+  "cameras": [],
+  "components": [
+    {
+      "id": "armComponent",
+      "zeroedRotations": [],
+      "zeroedPosition": [0, -0.12, 0]
+    }
+  ]
+}
