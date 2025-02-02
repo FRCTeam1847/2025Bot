@@ -20,8 +20,8 @@
         "y": 0.5766053082191785
       },
       "prevControl": {
-        "x": 1.9037606244095333,
-        "y": 0.7184587195809217
+        "x": 1.9037606244095335,
+        "y": 0.7184587195809218
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,35 +34,34 @@
   "eventMarkers": [
     {
       "name": "CoralStation_Left",
-      "waypointRelativePos": 0.9023809523809526,
+      "waypointRelativePos": 0.9476190476190474,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
           "commands": [
             {
-              "type": "parallel",
+              "type": "named",
               "data": {
-                "commands": [
-                  {
-                    "type": "named",
-                    "data": {
-                      "name": "CoralStation_Left"
-                    }
-                  },
-                  {
-                    "type": "named",
-                    "data": {
-                      "name": "Intake"
-                    }
-                  }
-                ]
+                "name": "CoralStation_Left"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Intake"
               }
             },
             {
               "type": "wait",
               "data": {
-                "waitTime": 0.5
+                "waitTime": 0.4
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "IntakeStop"
               }
             },
             {

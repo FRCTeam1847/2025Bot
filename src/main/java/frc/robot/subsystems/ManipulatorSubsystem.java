@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Levels;
 import org.littletonrobotics.junction.Logger;
@@ -27,8 +28,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
   private static final int BASE_X = 50;
   private static final int BASE_Y = 10;
 
-  private static final double releaseDelay = 0.25;
-  private static final double intakeMaxDelay = 0.25;
+  private static final double releaseDelay = 0.2;
+  private static final double intakeMaxDelay = 0.2;
 
   public ManipulatorSubsystem(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem,
       IntakeSubsystem intakeSubsystem) {
@@ -62,7 +63,6 @@ public class ManipulatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
 
   }
-  
 
   public Pose3d getManipulatorPose3d() {
     // Conversion factor: inches to meters.
@@ -118,41 +118,18 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public Command releaseCommand() {
-    return Commands.sequence(
-        runOnce(
-            () -> {
-              intakeSubsystem.release();
-            }),
-        Commands.waitSeconds(releaseDelay),
-        // runOnce(
-        // () -> {
-        // do other stuff here
-        // }),
-        // NoteVisualizer.shoot(),
-        Commands.idle())
-        .finallyDo(
-            () -> {
-              intakeSubsystem.stopIntake();
-            });
+    return new InstantCommand(
+        () -> intakeSubsystem.release());
   }
 
   public Command intakeCommand() {
-    return Commands.sequence(
-        runOnce(
-            () -> {
-              intakeSubsystem.intake();
-            }),
-        Commands.waitSeconds(intakeMaxDelay),
-        // runOnce(
-        // () -> {
-        // do other stuff here
-        // }),
-        // NoteVisualizer.shoot(),
-        Commands.idle())
-        .finallyDo(
-            () -> {
-              intakeSubsystem.stopIntake();
-            });
+    return new InstantCommand(
+        () -> intakeSubsystem.intake());
+  }
+
+  public Command intakeStopCommand() {
+    return new InstantCommand(
+        () -> intakeSubsystem.stopIntake());
   }
 
   @Override
