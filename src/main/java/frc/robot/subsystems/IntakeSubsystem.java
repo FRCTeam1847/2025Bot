@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -42,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void release() {
-    intakeSpeed = -0.6;
+    intakeSpeed = -speed;
   }
 
   public void stopIntake() {
@@ -51,13 +53,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
     LaserCan.Measurement measurement = lc.getMeasurement();
     if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       System.out.println("The target is " + measurement.distance_mm + "mm away!");
       if (measurement.ambient < 100 && intakeSpeed > 0) {
         intakeSpeed = 0;
       }
-    } 
+    }
     intakeMotor.set(intakeSpeed);
+    Logger.recordOutput("Field/Robot/ManipulatorMechanism/intake", intakeSpeed);
   }
 }

@@ -5,6 +5,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Levels;
 import org.littletonrobotics.junction.Logger;
@@ -15,7 +17,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 public class ManipulatorSubsystem extends SubsystemBase {
   private final ArmSubsystem armSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
-  // private final SwerveSubsystem drivebase;
+  private final IntakeSubsystem intakeSubsystem;
 
   private final LoggedMechanism2d combinedMechanism2d;
   private final LoggedMechanismRoot2d baseRoot;
@@ -25,10 +27,14 @@ public class ManipulatorSubsystem extends SubsystemBase {
   private static final int BASE_X = 50;
   private static final int BASE_Y = 10;
 
-  public ManipulatorSubsystem(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+  private static final double releaseDelay = 0.25;
+  private static final double intakeMaxDelay = 0.25;
+
+  public ManipulatorSubsystem(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem,
+      IntakeSubsystem intakeSubsystem) {
     this.armSubsystem = armSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
-    // this.drivebase = drivebase;
+    this.intakeSubsystem = intakeSubsystem;
 
     // Initialize Mechanism2d
     combinedMechanism2d = new LoggedMechanism2d(100, 100);
@@ -56,7 +62,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
 
   }
-
+  
 
   public Pose3d getManipulatorPose3d() {
     // Conversion factor: inches to meters.
@@ -81,6 +87,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public void setLevel(Levels level, boolean left) {
+    System.out.println("Setting level to " + level + " with left = " + left);
     switch (level) {
       case CoralStation:
         elevatorSubsystem.setTargetHeight(0);
@@ -108,6 +115,44 @@ public class ManipulatorSubsystem extends SubsystemBase {
         armSubsystem.setTargetAngle(Rotation2d.fromDegrees(0));
         break;
     }
+  }
+
+  public Command releaseCommand() {
+    return Commands.sequence(
+        runOnce(
+            () -> {
+              intakeSubsystem.release();
+            }),
+        Commands.waitSeconds(releaseDelay),
+        // runOnce(
+        // () -> {
+        // do other stuff here
+        // }),
+        // NoteVisualizer.shoot(),
+        Commands.idle())
+        .finallyDo(
+            () -> {
+              intakeSubsystem.stopIntake();
+            });
+  }
+
+  public Command intakeCommand() {
+    return Commands.sequence(
+        runOnce(
+            () -> {
+              intakeSubsystem.intake();
+            }),
+        Commands.waitSeconds(intakeMaxDelay),
+        // runOnce(
+        // () -> {
+        // do other stuff here
+        // }),
+        // NoteVisualizer.shoot(),
+        Commands.idle())
+        .finallyDo(
+            () -> {
+              intakeSubsystem.stopIntake();
+            });
   }
 
   @Override
