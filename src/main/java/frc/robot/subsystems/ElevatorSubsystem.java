@@ -62,7 +62,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    System.out.println(DIST_PER_ROT_IN + " " + leftEncoder.getPosition()*DIST_PER_ROT_IN+ " " + getTargetHeight()); 
+    // System.out.println(DIST_PER_ROT_IN + " " + leftEncoder.getPosition()*DIST_PER_ROT_IN+ " " + getTargetHeight()); 
   }
 
   public void resetEncoder() {

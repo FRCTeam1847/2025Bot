@@ -14,6 +14,11 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -21,6 +26,8 @@ public class IntakeSubsystem extends SubsystemBase {
   private final SparkMax intakeMotor;
   private final double speed = 0.5;
   private double intakeSpeed = 0;
+
+  private final Timer simulationTimer = new Timer();
 
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
@@ -39,6 +46,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void intake() {
+
     intakeSpeed = speed;
 
   }
@@ -51,16 +59,36 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeSpeed = 0;
   }
 
+  public void resetSimulationTimer() {
+    simulationTimer.reset();
+    simulationTimer.start();
+  }
+
+  public boolean isSensorTriggered() {
+    if (RobotBase.isSimulation()) {
+      boolean triggered = simulationTimer.hasElapsed(0.75);
+      System.out.println("Simulation mode: time = " + simulationTimer.get() + ", triggered = " + triggered);
+      return triggered;
+    } else {
+      LaserCan.Measurement measurement = lc.getMeasurement();
+      if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+        System.out.println("The target is " + measurement.distance_mm + "mm away!");
+      }
+      return (measurement != null &&
+          measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
+          measurement.ambient < 100);
+    }
+  }
+
+  public Command intakeCommand() {
+    return new InstantCommand(() -> resetSimulationTimer(), this)
+        .andThen(new RunCommand(() -> intake(), this)
+            .until(this::isSensorTriggered))
+        .andThen(new InstantCommand(() -> stopIntake(), this));
+  }
+
   @Override
   public void periodic() {
-
-    LaserCan.Measurement measurement = lc.getMeasurement();
-    if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      System.out.println("The target is " + measurement.distance_mm + "mm away!");
-      if (measurement.ambient < 100 && intakeSpeed > 0) {
-        intakeSpeed = 0;
-      }
-    }
     intakeMotor.set(intakeSpeed);
     Logger.recordOutput("Field/Robot/ManipulatorMechanism/intake", intakeSpeed);
   }
