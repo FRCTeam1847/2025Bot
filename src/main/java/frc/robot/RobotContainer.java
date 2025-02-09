@@ -39,11 +39,9 @@ public class RobotContainer {
         File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
         private final SwerveSubsystem drivebase = new SwerveSubsystem(
                         new File(Filesystem.getDeployDirectory(), "swerve"));
-        private final ArmSubsystem armSubsystem = new ArmSubsystem();
         private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
         private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
-                        armSubsystem,
                         intakeSubsystem);
         private final SendableChooser<Command> autoChooser;
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -115,57 +113,32 @@ public class RobotContainer {
                 NamedCommands.registerCommand(
                                 "Home",
                                 new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.Home, false),
+                                                () -> manipulatorSubsystem.setLevel(Levels.Home),
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
-                                "CoralStation_Left",
+                                "CoralStation",
                                 new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.CoralStation, false),
+                                                () -> manipulatorSubsystem.setLevel(Levels.CoralStation),
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
-                                "L1_Left",
+                                "L1",
                                 new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L1, false),
+                                                () -> manipulatorSubsystem.setLevel(Levels.L1),
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
-                                "L2_Left",
+                                "L2",
                                 new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L2, false),
+                                                () -> manipulatorSubsystem.setLevel(Levels.L2),
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
-                                "L3_Left",
+                                "L3",
                                 new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L3, false),
+                                                () -> manipulatorSubsystem.setLevel(Levels.L3),
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
-                                "L4_Left",
+                                "L4",
                                 new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L4, false),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "CoralStation_Right",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.CoralStation, true),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L1_Right",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L1, true),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L2_Right",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L2, true),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L3_Right",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L3, true),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L4_Right",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L4, true),
+                                                () -> manipulatorSubsystem.setLevel(Levels.L4),
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
                                 "Intake", manipulatorSubsystem.intakeCommand());
@@ -203,18 +176,14 @@ public class RobotContainer {
                 driverXbox.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
 
-                driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation_Right"));
-                driverXbox.L1().onTrue(NamedCommands.getCommand("CoralStation_Left"));
+                driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation"));
+                driverXbox.L1().onTrue(NamedCommands.getCommand("Home"));
 
-                driverXbox.cross().onTrue(NamedCommands.getCommand("L1_Right"));
-                driverXbox.circle().onTrue(NamedCommands.getCommand("L2_Right"));
-                driverXbox.triangle().onTrue(NamedCommands.getCommand("L4_Right"));
-                driverXbox.square().onTrue(NamedCommands.getCommand("L3_Right"));
+                driverXbox.cross().onTrue(NamedCommands.getCommand("L1"));
+                driverXbox.circle().onTrue(NamedCommands.getCommand("L2"));
+                driverXbox.triangle().onTrue(NamedCommands.getCommand("L4"));
+                driverXbox.square().onTrue(NamedCommands.getCommand("L3"));
 
-                driverXbox.povDown().onTrue(NamedCommands.getCommand("L1_Left"));
-                driverXbox.povRight().onTrue(NamedCommands.getCommand("L2_Left"));
-                driverXbox.povUp().onTrue(NamedCommands.getCommand("L4_Left"));
-                driverXbox.povLeft().onTrue(NamedCommands.getCommand("L3_Left"));
         }
 
         /**
