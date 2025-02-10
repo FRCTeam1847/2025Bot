@@ -95,7 +95,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         elevatorSubsystem.setTargetHeight(4.1);
         break;
       case L4:
-        elevatorSubsystem.setTargetHeight(6.8);
+        elevatorSubsystem.setTargetHeight(6.85);
         break;
       default:
       case Home:

@@ -18,8 +18,8 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder leftEncoder;
   private final SparkClosedLoopController leftClosedLoopController;
 
-  private static final double DIST_PER_ROT_IN = 0.2685; // Spool diameter divided by gear ratio
-  private static final double kP = 0.125;
+  private static final double DIST_PER_ROT_IN = 0.2655; // Spool diameter divided by gear ratio
+  private static final double kP = 0.126;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double maxHeight = 10.0; // Max height in inches
@@ -35,7 +35,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         .velocityConversionFactor(DIST_PER_ROT_IN);
     leftConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(kP).i(kI).d(kD).outputRange(-0.5, 0.5);
+        .p(kP).i(kI).d(kD).outputRange(-1, 1);
     leftConfig.inverted(false);
     leftMotor.configure(leftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
