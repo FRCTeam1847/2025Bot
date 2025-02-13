@@ -36,13 +36,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-        File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
+        // File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
         private final SwerveSubsystem drivebase = new SwerveSubsystem(
-                        new File(Filesystem.getDeployDirectory(), "swerve"));
-        private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-        private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-        private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
-                        intakeSubsystem);
+                       new File(Filesystem.getDeployDirectory(), "swerve/kraken"));
+        // private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+        // private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+        // private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
+        //                 intakeSubsystem);
         private final SendableChooser<Command> autoChooser;
         // Replace with CommandPS4Controller or CommandJoystick if needed
         private final CommandPS5Controller driverXbox = new CommandPS5Controller(0);
@@ -75,7 +75,7 @@ public class RobotContainer {
                         .deadband(OperatorConstants.DEADBAND)
                         .scaleTranslation(0.8)
                         .allianceRelativeControl(true);
-        // Derive the heading axis with math!
+        //Derive the heading axis with math!
         SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
                         .withControllerHeadingAxis(() -> Math.sin(
                                         driverXbox.getRawAxis(
@@ -95,57 +95,57 @@ public class RobotContainer {
                 configureDefaultCommand();
                 registerNamedCommands();
 
-                drivebase.setupPathPlanner();
+                 drivebase.setupPathPlanner();
                 autoChooser = AutoBuilder.buildAutoChooser();
                 configureBindings();
                 SmartDashboard.putData("Auto Chooser", autoChooser);
         }
 
         private void configureDefaultCommand() {
-                manipulatorSubsystem.setDefaultCommand(
-                                new InstantCommand(
-                                                () -> {
-                                                },
-                                                manipulatorSubsystem));
+                // manipulatorSubsystem.setDefaultCommand(
+                //                 new InstantCommand(
+                //                                 () -> {
+                //                                 },
+                //                                 manipulatorSubsystem));
         }
 
         private void registerNamedCommands() {
-                NamedCommands.registerCommand(
-                                "Home",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.Home),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "CoralStation",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.CoralStation),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L1",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L1),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L2",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L2),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L3",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L3),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L4",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L4),
-                                                manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "Intake", manipulatorSubsystem.intakeCommand());
-                NamedCommands.registerCommand(
-                                "Release", manipulatorSubsystem.releaseCommand());
-                NamedCommands.registerCommand(
-                                "IntakeStop", manipulatorSubsystem.intakeStopCommand());
+                // NamedCommands.registerCommand(
+                //                 "Home",
+                //                 new InstantCommand(
+                //                                 () -> manipulatorSubsystem.setLevel(Levels.Home),
+                //                                 manipulatorSubsystem));
+                // NamedCommands.registerCommand(
+                //                 "CoralStation",
+                //                 new InstantCommand(
+                //                                 () -> manipulatorSubsystem.setLevel(Levels.CoralStation),
+                //                                 manipulatorSubsystem));
+                // NamedCommands.registerCommand(
+                //                 "L1",
+                //                 new InstantCommand(
+                //                                 () -> manipulatorSubsystem.setLevel(Levels.L1),
+                //                                 manipulatorSubsystem));
+                // NamedCommands.registerCommand(
+                //                 "L2",
+                //                 new InstantCommand(
+                //                                 () -> manipulatorSubsystem.setLevel(Levels.L2),
+                //                                 manipulatorSubsystem));
+                // NamedCommands.registerCommand(
+                //                 "L3",
+                //                 new InstantCommand(
+                //                                 () -> manipulatorSubsystem.setLevel(Levels.L3),
+                //                                 manipulatorSubsystem));
+                // NamedCommands.registerCommand(
+                //                 "L4",
+                //                 new InstantCommand(
+                //                                 () -> manipulatorSubsystem.setLevel(Levels.L4),
+                //                                 manipulatorSubsystem));
+                // NamedCommands.registerCommand(
+                //                 "Intake", manipulatorSubsystem.intakeCommand());
+                // NamedCommands.registerCommand(
+                //                 "Release", manipulatorSubsystem.releaseCommand());
+                // NamedCommands.registerCommand(
+                //                 "IntakeStop", manipulatorSubsystem.intakeStopCommand());
 
         }
 
@@ -197,6 +197,6 @@ public class RobotContainer {
         }
 
         public void setMotorBrake(boolean brake) {
-                drivebase.setMotorBrake(brake);
+                 drivebase.setMotorBrake(brake);
         }
 }
