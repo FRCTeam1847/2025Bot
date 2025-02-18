@@ -18,11 +18,13 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder leftEncoder;
   private final SparkClosedLoopController leftClosedLoopController;
 
-  private static final double DIST_PER_ROT_IN = 0.2655; // Spool diameter divided by gear ratio
-  private static final double kP = 0.126;
+  private static final double GEAR_RATIO = 20.0; // 20:1 gearbox
+  private static final double SPROCKET_DIAMETER_INCHES = 1.75; // Change this based on your actual sprocket diameter
+  private static final double SPROCKET_CIRCUMFERENCE = SPROCKET_DIAMETER_INCHES * Math.PI; // inches per rev
+  private static final double kP = 0.115;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
-  private static final double maxHeight = 10.0; // Max height in inches
+  private static final double MAX_HEIGHT = 26.5;
   private double currentHeight = 0.0;
 
   public ElevatorSubsystem() {
@@ -31,11 +33,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     leftConfig.encoder
-        .positionConversionFactor(DIST_PER_ROT_IN)
-        .velocityConversionFactor(DIST_PER_ROT_IN);
+        .positionConversionFactor(1.0)
+        .velocityConversionFactor(1.0);
     leftConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(kP).i(kI).d(kD).outputRange(-1, 1);
+        .p(kP).i(kI).d(kD).outputRange(-0.75, 0.75);
     leftConfig.inverted(false);
     leftMotor.configure(leftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -51,18 +53,32 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public void setTargetHeight(double heightInches) {
-    currentHeight = heightInches;
-    heightInches = Math.max(0, Math.min(maxHeight, heightInches)); // Clamp the height
-    leftClosedLoopController.setReference(heightInches / DIST_PER_ROT_IN, ControlType.kPosition);
+
+    currentHeight = Math.max(0, Math.min(MAX_HEIGHT, heightInches)); // Clamp height
+
+    // Convert height to motor rotations
+    double requiredRotations = (currentHeight / SPROCKET_CIRCUMFERENCE) * GEAR_RATIO;
+
+    // Set motor position control
+    leftClosedLoopController.setReference(requiredRotations, ControlType.kPosition);
   }
 
   public double getTargetHeight() {
     return currentHeight;
   }
 
+  public double getElevatorHeight() {
+    double motorRotations = leftEncoder.getPosition(); // Returns rotations of the motor shaft
+    double elevatorRotations = motorRotations / GEAR_RATIO; // Convert to rotations of the output shaft
+    double elevatorHeight = elevatorRotations * SPROCKET_CIRCUMFERENCE; // Convert to height in inches
+
+    return elevatorHeight;
+  }
+
   @Override
   public void periodic() {
-    // System.out.println(DIST_PER_ROT_IN + " " + leftEncoder.getPosition()*DIST_PER_ROT_IN+ " " + getTargetHeight()); 
+    // System.out.println("Current Height: " + getElevatorHeight() + " inches,
+    // Target: " + getTargetHeight());
   }
 
   public void resetEncoder() {

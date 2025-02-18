@@ -83,23 +83,23 @@ public class ManipulatorSubsystem extends SubsystemBase {
     System.out.println("Setting level to " + level);
     switch (level) {
       case CoralStation:
-        elevatorSubsystem.setTargetHeight(0.25);
+        elevatorSubsystem.setTargetHeight(1);
         break;
       case L1:
-        elevatorSubsystem.setTargetHeight(0.6);
+        elevatorSubsystem.setTargetHeight(1);
         break;
       case L2:
-        elevatorSubsystem.setTargetHeight(2.1);
+        elevatorSubsystem.setTargetHeight(6.0);
         break;
       case L3:
-        elevatorSubsystem.setTargetHeight(4.1);
+        elevatorSubsystem.setTargetHeight(14.0);
         break;
       case L4:
-        elevatorSubsystem.setTargetHeight(6.85);
+        elevatorSubsystem.setTargetHeight(26.5);
         break;
       default:
       case Home:
-        elevatorSubsystem.setTargetHeight(0);
+        elevatorSubsystem.setTargetHeight(0.25);
         break;
     }
   }
