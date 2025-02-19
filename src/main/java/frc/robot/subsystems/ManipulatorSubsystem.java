@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Levels;
 import org.littletonrobotics.junction.Logger;
@@ -62,11 +61,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
    */
   public Pose3d getManipulatorPose3d() {
     // Conversion factor: inches to meters.
-    final double inchesToMeters = 0.2;
+    final double inchesToMeters = 0.0254;
 
     // Calculate the elevator height in meters.
-    double elevatorHeightMeters = elevatorSubsystem.getTargetHeight() * inchesToMeters;
-    Translation3d elevatorTranslation = new Translation3d(0, 0, elevatorHeightMeters + 0.55);
+    double elevatorHeightMeters = (elevatorSubsystem.getTargetHeight() * 2) * inchesToMeters;
+    Translation3d elevatorTranslation = new Translation3d(0, 0, elevatorHeightMeters);
 
     Rotation3d manipulatorRotation = new Rotation3d();
 

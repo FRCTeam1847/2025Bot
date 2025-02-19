@@ -25,7 +25,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double MAX_HEIGHT = 26.5;
-  private double currentHeight = 0.0;
+  private double currentHeight = 0.25;
 
   public ElevatorSubsystem() {
     leftMotor = new SparkMax(11, MotorType.kBrushless);

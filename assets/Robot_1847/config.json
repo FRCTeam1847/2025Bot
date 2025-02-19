@@ -7,7 +7,7 @@
     {
       "id": "armComponent",
       "zeroedRotations": [{ "axis": "z", "degrees": 180}],
-      "zeroedPosition": [0, -0.3, -0.45]
+      "zeroedPosition": [0, -0.3, 0.1]
     }
   ]
 }
