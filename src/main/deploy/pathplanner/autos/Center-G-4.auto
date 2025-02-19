@@ -13,13 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center-L1"
+            "pathName": "Center-G-1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L1"
+            "name": "L4"
           }
         },
         {

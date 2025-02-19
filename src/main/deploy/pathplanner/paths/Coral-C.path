@@ -45,10 +45,10 @@
     "rotation": 57.26477372789239
   },
   "reversed": false,
-  "folder": "SimTest",
+  "folder": "Right Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 51.952957468173906
+    "rotation": -36.65995735557713
   },
   "useDefaultConstraints": true
 }
