@@ -40,7 +40,7 @@ public class RobotContainer {
         // "swerve");
         private final SwerveSubsystem drivebase = new SwerveSubsystem(
                         new File(Filesystem.getDeployDirectory(), "swerve/kraken"));
-        private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+        private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(false);
         private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
