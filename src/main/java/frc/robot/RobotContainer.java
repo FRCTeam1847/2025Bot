@@ -207,7 +207,7 @@ public class RobotContainer {
                 controller.povDown().whileTrue(NamedCommands.getCommand("ClimberDown"))
                                 .onFalse(NamedCommands.getCommand("ClimberStop"));
 
-                controller.povRight().onTrue(drivebase.driveToDetectedQRCode());
+                // controller.povRight().onTrue(drivebase.driveToDetectedQRCode());
 
         }
 
