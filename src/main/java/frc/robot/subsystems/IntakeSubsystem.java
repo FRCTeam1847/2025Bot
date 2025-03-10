@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeSubsystem extends SubsystemBase {
   private LaserCan lc;
   private final SparkMax intakeMotor;
-  private final double speed = 0.5;
+  private final double speed = 0.25;
   private double intakeSpeed = 0;
 
   private final Timer simulationTimer = new Timer();
@@ -32,6 +32,7 @@ public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new IntakeSubsystem. */
   public IntakeSubsystem() {
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
+    intakeMotorConfig.smartCurrentLimit(20);
     intakeMotor = new SparkMax(12, MotorType.kBrushless);
     intakeMotor.configure(intakeMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -47,12 +48,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void intake() {
 
-    intakeSpeed = speed;
+    intakeSpeed = -0.125;
 
   }
 
   public void release() {
-    intakeSpeed = -speed;
+    intakeSpeed = -0.5;
   }
 
   public void stopIntake() {
@@ -67,23 +68,23 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean isSensorTriggered() {
     if (RobotBase.isSimulation()) {
       boolean triggered = simulationTimer.hasElapsed(0.75);
-      System.out.println("Simulation mode: time = " + simulationTimer.get() + ", triggered = " + triggered);
+      //System.out.println("Simulation mode: time = " + simulationTimer.get() + ", triggered = " + triggered);
       return triggered;
     } else {
       LaserCan.Measurement measurement = lc.getMeasurement();
-      if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-        System.out.println("The target is " + measurement.distance_mm + "mm away!");
-      }
+      // if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+      //   System.out.println("The target is " + measurement.distance_mm + "mm away!");
+      // }
       return (measurement != null &&
           measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
-          measurement.ambient < 100);
+          measurement.distance_mm < 100);
     }
   }
 
   public Command intakeCommand() {
     return new InstantCommand(() -> resetSimulationTimer(), this)
-        .andThen(new RunCommand(() -> intake(), this)
-            .until(this::isSensorTriggered))
+        .andThen(new RunCommand(() -> intake(), this))
+        .until(this::isSensorTriggered)
         .andThen(new InstantCommand(() -> stopIntake(), this));
   }
 
@@ -91,5 +92,6 @@ public class IntakeSubsystem extends SubsystemBase {
   public void periodic() {
     intakeMotor.set(intakeSpeed);
     Logger.recordOutput("Field/Robot/ManipulatorMechanism/intake", intakeSpeed);
+    Logger.recordOutput("Field/Robot/ManipulatorMechanism/intakeSensor", isSensorTriggered());
   }
 }
