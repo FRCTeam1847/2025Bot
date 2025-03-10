@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Home"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Center-G-1"
@@ -20,36 +14,6 @@
           "type": "named",
           "data": {
             "name": "L4"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Release"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "IntakeStop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Home"
           }
         }
       ]
