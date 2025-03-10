@@ -6,7 +6,10 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.Levels;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -85,22 +88,50 @@ public class ManipulatorSubsystem extends SubsystemBase {
         elevatorSubsystem.setTargetHeight(1);
         break;
       case L1:
-        elevatorSubsystem.setTargetHeight(1);
+        elevatorSubsystem.setTargetHeight(1.5);
         break;
       case L2:
-        elevatorSubsystem.setTargetHeight(6.0);
+        elevatorSubsystem.setTargetHeight(6.25);
         break;
       case L3:
-        elevatorSubsystem.setTargetHeight(14.0);
+        elevatorSubsystem.setTargetHeight(14.75);
         break;
       case L4:
-        elevatorSubsystem.setTargetHeight(26.5);
+        elevatorSubsystem.setTargetHeight(27);
         break;
       default:
       case Home:
-        elevatorSubsystem.setTargetHeight(0.25);
+        elevatorSubsystem.setTargetHeight(0.2);
         break;
     }
+  }
+
+  public Command ScoreAtLevelCommand(Levels level) {
+    System.out.println("Command Started");
+    return new SequentialCommandGroup(
+        // Step 1: Intake until coral is detected
+        new InstantCommand(() -> intakeSubsystem.intake()), // Start intaking
+        new WaitUntilCommand(this::hasCoral), // Wait until we detect the coral
+        new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
+
+        // Step 2: Move to the scoring level
+        new InstantCommand(() -> setLevel(level)), // Set the target level
+        new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches the target height
+        new WaitCommand(0.15), // wait for a bit
+
+        // Step 3: Score the coral
+        new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
+        new WaitCommand(0.15), // wait for a bit before continuing
+        new WaitUntilCommand(() -> !hasCoral()), // Wait until the coral is no longer detected
+        new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
+
+        // Step 4: Return to home position
+        new InstantCommand(() -> setLevel(Levels.Home)) // Move back to home position
+    ).finallyDo((interrupted) -> {
+      System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
+      intakeSubsystem.stopIntake();
+    });
+
   }
 
   public Command releaseCommand() {
@@ -113,6 +144,14 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public Command intakeStopCommand() {
     return new InstantCommand(() -> intakeSubsystem.stopIntake());
+  }
+
+  public boolean isAtHeight() {
+    return elevatorSubsystem.isAtHeight();
+  }
+
+  public boolean hasCoral() {
+    return intakeSubsystem.isSensorTriggered();
   }
 
   @Override
