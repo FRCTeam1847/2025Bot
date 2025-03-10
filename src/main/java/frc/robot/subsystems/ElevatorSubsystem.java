@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -23,10 +24,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double GEAR_RATIO = 20.0; // 20:1 gearbox
   private static final double SPROCKET_DIAMETER_INCHES = 1.75; // Change this based on your actual sprocket diameter
   private static final double SPROCKET_CIRCUMFERENCE = SPROCKET_DIAMETER_INCHES * Math.PI; // inches per rev
-  private static final double kP = 0.115;
+  private static final double kP = 0.07;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
-  private static final double MAX_HEIGHT = 26.5;
+  private static final double MAX_HEIGHT = 27;
+  private static final double HEIGHT_TOLERANCE = 2.0;
   private double currentHeight = 0.25;
   private boolean isMAXMotionEnabled;
 
@@ -41,13 +43,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     if (!smartMotion) {
       leftConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-          .p(kP).i(kI).d(kD).outputRange(-0.75, 0.75);
+          .p(kP).i(kI).d(kD).outputRange(-1, 1);
       leftConfig.closedLoopRampRate(0.25); // slow it down maybe?
 
     } else {
       MAXMotionConfig maxMotionConfig = new MAXMotionConfig()
-          .maxVelocity(3000) // Set the maximum velocity (in RPM)
-          .maxAcceleration(2000) // Set the maximum acceleration (in RPM per second)
+          .maxVelocity(1000000) // Set the maximum velocity (in RPM)
+          .maxAcceleration(200000) // Set the maximum acceleration (in RPM per second)
           .allowedClosedLoopError(0.05) // Set the allowed closed-loop error (in rotations)
           .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal); // Choose the position control mode
 
@@ -56,7 +58,7 @@ public class ElevatorSubsystem extends SubsystemBase {
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
           .p(kP).i(kI).d(kD)
           .apply(maxMotionConfig) // Apply the MAXMotion configuration
-          .outputRange(-0.75, 0.75); // Set the output range
+          .outputRange(-1, 1); // Set the output range
     }
 
     leftConfig.inverted(false);
@@ -75,7 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setTargetHeight(double heightInches) {
 
-    currentHeight = Math.max(0, Math.min(MAX_HEIGHT, heightInches)); // Clamp height
+    currentHeight = Math.max(0.25, Math.min(MAX_HEIGHT, heightInches)); // Clamp height
 
     // Convert height to motor rotations
     double requiredRotations = (currentHeight / SPROCKET_CIRCUMFERENCE) * GEAR_RATIO;
@@ -90,17 +92,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getElevatorHeight() {
-    double motorRotations = leftEncoder.getPosition(); // Returns rotations of the motor shaft
-    double elevatorRotations = motorRotations / GEAR_RATIO; // Convert to rotations of the output shaft
-    double elevatorHeight = elevatorRotations * SPROCKET_CIRCUMFERENCE; // Convert to height in inches
+    double motorRotations = leftEncoder.getPosition(); // Motor shaft rotations
+    double elevatorRotations = motorRotations / GEAR_RATIO; // Convert to elevator shaft rotations
+    return elevatorRotations * SPROCKET_CIRCUMFERENCE; // Convert to inches
+  }
 
-    return elevatorHeight;
+  public boolean isAtHeight() {
+    return Math.abs(getElevatorHeight() - currentHeight) <= HEIGHT_TOLERANCE;
   }
 
   @Override
   public void periodic() {
-    // System.out.println("Current Height: " + getElevatorHeight() + " inches,
-    // Target: " + getTargetHeight());
+    SmartDashboard.putNumber("Current Height: ", getElevatorHeight());
+    SmartDashboard.putBoolean("At Height: ", isAtHeight());
+    SmartDashboard.putNumber("encoder rotations: ", leftEncoder.getPosition());
   }
 
   public void resetEncoder() {
