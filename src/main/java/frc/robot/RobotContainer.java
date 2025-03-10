@@ -6,7 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.Levels;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ManipulatorSubsystem;
@@ -18,6 +18,7 @@ import java.io.File;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -44,9 +45,13 @@ public class RobotContainer {
         private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
+        private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+
         private final SendableChooser<Command> autoChooser;
         // Replace with CommandPS4Controller or CommandJoystick if needed
-        private final CommandPS5Controller driverXbox = new CommandPS5Controller(0);
+        private final CommandPS5Controller controller = new CommandPS5Controller(0);
+
+        private Command activeScoreCommand = null;
 
         /**
          * Clone's the angular velocity input stream and converts it to a fieldRelative
@@ -75,17 +80,17 @@ public class RobotContainer {
          * by angular velocity.
          */
         SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> driverXbox.getLeftY() * -1,
-                        () -> driverXbox.getLeftX() * -1)
-                        .withControllerRotationAxis(driverXbox::getRightX)
+                        () -> controller.getLeftY() * -1,
+                        () -> controller.getLeftX() * -1)
+                        .withControllerRotationAxis(controller::getRightX)
                         .deadband(OperatorConstants.DEADBAND)
                         .scaleTranslation(0.8)
                         .allianceRelativeControl(true);
 
         SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> -driverXbox.getLeftY(),
-                        () -> -driverXbox.getLeftX())
-                        .withControllerRotationAxis(() -> driverXbox.getRightX())
+                        () -> -controller.getLeftY(),
+                        () -> -controller.getLeftX())
+                        .withControllerRotationAxis(() -> controller.getRightX())
                         .deadband(OperatorConstants.DEADBAND)
                         .scaleTranslation(0.8)
                         .allianceRelativeControl(true);
@@ -100,6 +105,7 @@ public class RobotContainer {
                 drivebase.setupPathPlanner();
                 autoChooser = AutoBuilder.buildAutoChooser();
                 configureBindings();
+                DriverStation.silenceJoystickConnectionWarning(true);
                 SmartDashboard.putData("Auto Chooser", autoChooser);
         }
 
@@ -124,30 +130,27 @@ public class RobotContainer {
                                                 manipulatorSubsystem));
                 NamedCommands.registerCommand(
                                 "L1",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L1),
-                                                manipulatorSubsystem));
+                                new InstantCommand(() -> startScoreCommand(Levels.L1)));
                 NamedCommands.registerCommand(
                                 "L2",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L2),
-                                                manipulatorSubsystem));
+                                new InstantCommand(() -> startScoreCommand(Levels.L2)));
                 NamedCommands.registerCommand(
                                 "L3",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L3),
-                                                manipulatorSubsystem));
+                                new InstantCommand(() -> startScoreCommand(Levels.L3)));
                 NamedCommands.registerCommand(
                                 "L4",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.L4),
-                                                manipulatorSubsystem));
+                                new InstantCommand(() -> startScoreCommand(Levels.L4)));
                 NamedCommands.registerCommand(
                                 "Intake", manipulatorSubsystem.intakeCommand());
                 NamedCommands.registerCommand(
                                 "Release", manipulatorSubsystem.releaseCommand());
                 NamedCommands.registerCommand(
                                 "IntakeStop", manipulatorSubsystem.intakeStopCommand());
+                NamedCommands.registerCommand("ClimberUp", climberSubsystem.moveForwardCommand());
+                NamedCommands.registerCommand("ClimberDown", climberSubsystem.moveBackwardCommand());
+                NamedCommands.registerCommand("ClimberStop",
+                                climberSubsystem.stopCommand());
+                NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
 
         }
 
@@ -178,18 +181,33 @@ public class RobotContainer {
 
                 // }
 
-                driverXbox.R2().whileTrue(NamedCommands.getCommand("Intake"))
+                controller.R2().whileTrue(NamedCommands.getCommand("Intake"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
-                driverXbox.L2().whileTrue(NamedCommands.getCommand("Release"))
+                controller.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
 
-                driverXbox.R1().onTrue(NamedCommands.getCommand("CoralStation"));
-                driverXbox.L1().onTrue(NamedCommands.getCommand("Home"));
+                controller.R1().onTrue(NamedCommands.getCommand("CoralStation"));
+                controller.L1().onTrue(NamedCommands.getCommand("Home"));
 
-                driverXbox.cross().onTrue(NamedCommands.getCommand("L1"));
-                driverXbox.circle().onTrue(NamedCommands.getCommand("L2"));
-                driverXbox.triangle().onTrue(NamedCommands.getCommand("L4"));
-                driverXbox.square().onTrue(NamedCommands.getCommand("L3"));
+                controller.cross().whileTrue(NamedCommands.getCommand("L1"))
+                                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                ;
+                controller.circle().whileTrue(NamedCommands.getCommand("L2"))
+                                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                ;
+                controller.triangle().whileTrue(NamedCommands.getCommand("L4"))
+                                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                ;
+                controller.square().whileTrue(NamedCommands.getCommand("L3"))
+                                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                ;
+
+                controller.povUp().whileTrue(NamedCommands.getCommand("ClimberUp"))
+                                .onFalse(NamedCommands.getCommand("ClimberStop"));
+                controller.povDown().whileTrue(NamedCommands.getCommand("ClimberDown"))
+                                .onFalse(NamedCommands.getCommand("ClimberStop"));
+
+                controller.povRight().onTrue(drivebase.driveToDetectedQRCode());
 
         }
 
@@ -205,5 +223,19 @@ public class RobotContainer {
 
         public void setMotorBrake(boolean brake) {
                 drivebase.setMotorBrake(brake);
+        }
+
+        private void cancelActiveScoreCommand() {
+                if (activeScoreCommand != null && activeScoreCommand.isScheduled()) {
+                        System.out.println("Cancelling ScoreAtLevelCommand...");
+                        activeScoreCommand.cancel();
+                        activeScoreCommand = null;
+                }
+        }
+
+        private void startScoreCommand(Levels level) {
+                cancelActiveScoreCommand(); // Ensure no other ScoreAtLevelCommand is running
+                activeScoreCommand = manipulatorSubsystem.ScoreAtLevelCommand(level);
+                activeScoreCommand.schedule();
         }
 }
