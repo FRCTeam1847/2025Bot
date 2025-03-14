@@ -28,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double MAX_HEIGHT = 27;
-  private static final double HEIGHT_TOLERANCE = 2.0;
+  private static final double HEIGHT_TOLERANCE = 0.5;
   private double currentHeight = 0.25;
   private boolean isMAXMotionEnabled;
 
@@ -47,18 +47,18 @@ public class ElevatorSubsystem extends SubsystemBase {
       leftConfig.closedLoopRampRate(0.25); // slow it down maybe?
 
     } else {
-      MAXMotionConfig maxMotionConfig = new MAXMotionConfig()
-          .maxVelocity(1000000) // Set the maximum velocity (in RPM)
-          .maxAcceleration(200000) // Set the maximum acceleration (in RPM per second)
-          .allowedClosedLoopError(0.05) // Set the allowed closed-loop error (in rotations)
-          .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal); // Choose the position control mode
+      // MAXMotionConfig maxMotionConfig = new MAXMotionConfig()
+      //     .maxVelocity(1000000) // Set the maximum velocity (in RPM)
+      //     .maxAcceleration(200000) // Set the maximum acceleration (in RPM per second)
+      //     .allowedClosedLoopError(0.05) // Set the allowed closed-loop error (in rotations)
+      //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal); // Choose the position control mode
 
-      // Apply the MAXMotion configuration to the closed-loop settings
-      leftConfig.closedLoop
-          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-          .p(kP).i(kI).d(kD)
-          .apply(maxMotionConfig) // Apply the MAXMotion configuration
-          .outputRange(-1, 1); // Set the output range
+      // // Apply the MAXMotion configuration to the closed-loop settings
+      // leftConfig.closedLoop
+      //     .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+      //     .p(kP).i(kI).d(kD)
+      //     .apply(maxMotionConfig) // Apply the MAXMotion configuration
+      //     .outputRange(-1, 1); // Set the output range
     }
 
     leftConfig.inverted(false);

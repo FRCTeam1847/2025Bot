@@ -117,11 +117,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
         // Step 2: Move to the scoring level
         new InstantCommand(() -> setLevel(level)), // Set the target level
         new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches the target height
-        new WaitCommand(0.15), // wait for a bit
+        // new WaitCommand(0.15), // wait for a bit
 
         // Step 3: Score the coral
         new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
-        new WaitCommand(0.15), // wait for a bit before continuing
+        // new WaitCommand(0.15), // wait for a bit before continuing
         new WaitUntilCommand(() -> !hasCoral()), // Wait until the coral is no longer detected
         new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
 

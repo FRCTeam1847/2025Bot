@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.Levels;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AlignToReefTagRelative;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -151,6 +152,8 @@ public class RobotContainer {
                 NamedCommands.registerCommand("ClimberStop",
                                 climberSubsystem.stopCommand());
                 NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
+                NamedCommands.registerCommand("AlignRight", new AlignToReefTagRelative(true, drivebase).withTimeout(3));
+                NamedCommands.registerCommand("AlignLeft", new AlignToReefTagRelative(false, drivebase).withTimeout(3));
 
         }
 
@@ -206,6 +209,9 @@ public class RobotContainer {
                                 .onFalse(NamedCommands.getCommand("ClimberStop"));
                 controller.povDown().whileTrue(NamedCommands.getCommand("ClimberDown"))
                                 .onFalse(NamedCommands.getCommand("ClimberStop"));
+
+                controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
+                controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
 
                 // controller.povRight().onTrue(drivebase.driveToDetectedQRCode());
 

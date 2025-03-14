@@ -37,6 +37,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -46,6 +47,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -53,6 +55,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
+
 //import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
@@ -83,7 +87,8 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * AprilTag field layout.
    */
-  private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  // private final AprilTagFieldLayout aprilTagFieldLayout =
+  // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
   /**
    * Enable vision odometry updates while driving.
    */
@@ -164,9 +169,40 @@ public class SwerveSubsystem extends SubsystemBase {
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest) {
       swerveDrive.updateOdometry();
-      // vision.updatePoseEstimation(swerveDrive);
     }
+
+    // Record the robot's pose to the logger for visualization
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
+
+    // Limelight vision integration
+    updateVisionPose();
+  }
+
+  private void updateVisionPose() {
+    // Get the gyro angular velocity from YAGSL
+    MutAngularVelocity yawVelocity = swerveDrive.getGyro().getYawAngularVelocity();
+
+    // Convert to degrees per second
+    double angularVelocity = yawVelocity.magnitude();
+
+    // Set robot orientation for Limelight
+    LimelightHelpers.SetRobotOrientation(
+        "limelight",
+        getPose().getRotation().getDegrees(),
+        0, 0, 0, 0, 0);
+
+    // Retrieve pose estimation from Limelight
+    LimelightHelpers.PoseEstimate visionPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
+    // Reject vision update if:
+    // 1. Robot is rotating too fast (vision data unreliable)
+    // 2. No valid AprilTags detected
+    if (Math.abs(angularVelocity) > 360 || visionPose.tagCount == 0 || !visionPose.isMegaTag2) {
+      return; // Skip update
+    }
+
+    // Apply vision update using YAGSL's method
+    swerveDrive.addVisionMeasurement(visionPose.pose, visionPose.timestampSeconds);
   }
 
   @Override
