@@ -18,7 +18,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final RelativeEncoder integratedEncoder;
     private final SparkClosedLoopController closedLoopController;
 
-    private final double kP = 0.1;
+    private final double kP = 0.01;
     private final double kI = 0.0;
     private final double kD = 0.0;
     private final double velocityFF = 0.211;
@@ -47,7 +47,7 @@ public class ArmSubsystem extends SubsystemBase {
             .p(kP)
             .i(kI)
             .d(kD)
-            .outputRange(-1, 1)
+            .outputRange(-0.5, 0.5)
             .velocityFF(velocityFF);
 
         motor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);

@@ -157,7 +157,7 @@ public class RobotContainer {
                 NamedCommands.registerCommand("AlignRight", new AlignToReefTagRelative(true, drivebase).withTimeout(3));
                 NamedCommands.registerCommand("AlignLeft", new AlignToReefTagRelative(false, drivebase).withTimeout(3));
 
-                // NamedCommands.registerCommand("ToggleAlgae", armSubsystem.moveArmBackAndForth());
+                NamedCommands.registerCommand("ToggleAlgae", armSubsystem.moveArmBackAndForth());
 
         }
 
@@ -193,7 +193,7 @@ public class RobotContainer {
                 controller.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
 
-                // controller.R1().onTrue(NamedCommands.getCommand("ToggleAlgae"));
+                 controller.R1().onTrue(NamedCommands.getCommand("ToggleAlgae"));
                 controller.L1().onTrue(NamedCommands.getCommand("Home"));
 
                 controller.cross().whileTrue(NamedCommands.getCommand("L1"))
