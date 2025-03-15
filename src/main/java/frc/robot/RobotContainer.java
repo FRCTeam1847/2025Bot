@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.Levels;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlignToReefTagRelative;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -47,6 +48,7 @@ public class RobotContainer {
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
         private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+        private final ArmSubsystem armSubsystem = new ArmSubsystem();
 
         private final SendableChooser<Command> autoChooser;
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -155,6 +157,8 @@ public class RobotContainer {
                 NamedCommands.registerCommand("AlignRight", new AlignToReefTagRelative(true, drivebase).withTimeout(3));
                 NamedCommands.registerCommand("AlignLeft", new AlignToReefTagRelative(false, drivebase).withTimeout(3));
 
+                // NamedCommands.registerCommand("ToggleAlgae", armSubsystem.moveArmBackAndForth());
+
         }
 
         private void configureBindings() {
@@ -189,7 +193,7 @@ public class RobotContainer {
                 controller.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
 
-                controller.R1().onTrue(NamedCommands.getCommand("CoralStation"));
+                // controller.R1().onTrue(NamedCommands.getCommand("ToggleAlgae"));
                 controller.L1().onTrue(NamedCommands.getCommand("Home"));
 
                 controller.cross().whileTrue(NamedCommands.getCommand("L1"))
