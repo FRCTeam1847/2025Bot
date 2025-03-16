@@ -156,13 +156,6 @@ public class SwerveSubsystem extends SubsystemBase {
             Rotation2d.fromDegrees(0)));
   }
 
-  // /**
-  // * Setup the photon vision class.
-  // */
-  // public void setupPhotonVision()
-  // {
-  // vision = new Vision(swerveDrive::getPose, swerveDrive.field);
-  // }
 
   @Override
   public void periodic() {
