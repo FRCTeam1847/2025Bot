@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -82,7 +84,6 @@ public class ManipulatorSubsystem extends SubsystemBase {
    * @param level The desired level.
    */
   public void setLevel(Levels level) {
-    System.out.println("Setting level to " + level);
     switch (level) {
       case CoralStation:
         elevatorSubsystem.setTargetHeight(1);
@@ -107,7 +108,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public Command ScoreAtLevelCommand(Levels level) {
-    System.out.println("Command Started");
+    System.out.println("Command Started for level " + level);
     return new SequentialCommandGroup(
         // Step 1: Intake until coral is detected
         new InstantCommand(() -> intakeSubsystem.intake()), // Start intaking
@@ -115,9 +116,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
         new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
 
         // Step 2: Move to the scoring level
-        new InstantCommand(() -> setLevel(level)), // Set the target level
-        new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches the target height
-        // new WaitCommand(0.15), // Small wait before scoring
+        new RunCommand(() -> setLevel(level), this).until(this::isAtHeight),
+        // new InstantCommand(() -> setLevel(level)), // Set the target level
+        // new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches
+        // the target height
+        new WaitCommand(0.15), // Small wait before scoring
 
         // Step 3: Score the coral
         new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
@@ -126,12 +129,41 @@ public class ManipulatorSubsystem extends SubsystemBase {
         new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
 
         // Step 4: Wait before returning home
-        // new WaitCommand(0.15), // Adjust delay as needed before returning home
+        new WaitCommand(0.15), // Adjust delay as needed before returning home
         new InstantCommand(() -> setLevel(Levels.Home)) // Move back to home position
     ).finallyDo((interrupted) -> {
       System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
       intakeSubsystem.stopIntake();
     });
+  }
+
+  public Command ScoreAtLevelParallelCommand(Levels level) {
+    System.out.println("Command Started for level " + level);
+
+    return new SequentialCommandGroup(
+        // Step 1 (intake) and Step 2 (move elevator) run in parallel
+        new ParallelCommandGroup(
+            new SequentialCommandGroup(
+                new InstantCommand(() -> intakeSubsystem.intake()), // Start intaking
+                new WaitUntilCommand(this::hasCoral), // Wait until we detect the coral
+                new InstantCommand(() -> intakeSubsystem.stopIntake()) // Stop intake immediately once coral is detected
+            ),
+            new RunCommand(() -> setLevel(level), this).until(this::isAtHeight) // Move to target level
+        ),
+
+        // Step 3: Wait before scoring
+        new WaitCommand(0.15), // Allow brief stabilization before scoring
+        new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
+
+        // Step 4: Wait for coral to leave intake before going home
+        new WaitUntilCommand(() -> !hasCoral()), // Wait until coral is fully released
+        new WaitCommand(0.15), // Short pause before moving home
+
+        // Step 5: Move home
+        new RunCommand(() -> setLevel(Levels.Home), this).until(this::isAtHeight)).finallyDo((interrupted) -> {
+          System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
+          intakeSubsystem.stopIntake();
+        });
   }
 
   public Command releaseCommand() {
