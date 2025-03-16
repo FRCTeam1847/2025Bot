@@ -88,7 +88,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         elevatorSubsystem.setTargetHeight(1);
         break;
       case L1:
-        elevatorSubsystem.setTargetHeight(1.5);
+        elevatorSubsystem.setTargetHeight(3);
         break;
       case L2:
         elevatorSubsystem.setTargetHeight(6.25);
@@ -117,21 +117,21 @@ public class ManipulatorSubsystem extends SubsystemBase {
         // Step 2: Move to the scoring level
         new InstantCommand(() -> setLevel(level)), // Set the target level
         new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches the target height
-        // new WaitCommand(0.15), // wait for a bit
+        // new WaitCommand(0.15), // Small wait before scoring
 
         // Step 3: Score the coral
         new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
-        // new WaitCommand(0.15), // wait for a bit before continuing
+        // new WaitCommand(0.15), // Small wait before continuing
         new WaitUntilCommand(() -> !hasCoral()), // Wait until the coral is no longer detected
         new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
 
-        // Step 4: Return to home position
+        // Step 4: Wait before returning home
+        // new WaitCommand(0.15), // Adjust delay as needed before returning home
         new InstantCommand(() -> setLevel(Levels.Home)) // Move back to home position
     ).finallyDo((interrupted) -> {
       System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
       intakeSubsystem.stopIntake();
     });
-
   }
 
   public Command releaseCommand() {

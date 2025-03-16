@@ -23,7 +23,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final double kD = 0.0;
     private final double velocityFF = 0.211;
 
-    // Gear ratio: 3:1 gearbox
+    // Gear ratio: 3:1 gearbox (Motor rotates 3x for each full arm rotation)
     private final double gearRatio = 3.0;
 
     // Arm movement limits
@@ -37,18 +37,20 @@ public class ArmSubsystem extends SubsystemBase {
 
         SparkMaxConfig motorConfig = new SparkMaxConfig();
 
+        // **Corrected position conversion factor**
         motorConfig.encoder
-            .positionConversionFactor(360.0 / gearRatio) // Convert motor rotations to output degrees
-            .velocityConversionFactor(360.0 / gearRatio); // Convert motor RPM to deg/min
+                .positionConversionFactor(360.0 / gearRatio) // Each motor rotation corresponds to 120 degrees of arm
+                                                             // movement
+                .velocityConversionFactor(360.0 / gearRatio); // Correct velocity conversion
 
         // Configure closed-loop control
         motorConfig.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-            .p(kP)
-            .i(kI)
-            .d(kD)
-            .outputRange(-0.5, 0.5)
-            .velocityFF(velocityFF);
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .p(kP)
+                .i(kI)
+                .d(kD)
+                .outputRange(-0.5, 0.5)
+                .velocityFF(velocityFF);
 
         motor.configure(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -73,10 +75,13 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /**
-     * Toggles between 0° and 45°.
+     * Toggles between 0° and 45° based on the actual arm position.
      */
     public void toggleTargetAngle() {
-        if (targetAngle.getDegrees() < 1) {
+        double currentAngle = getArmAngle().getDegrees(); // Use actual encoder value
+        System.out.println("Toggle Check - Current Angle: " + currentAngle);
+
+        if (currentAngle < 2.0) { // Use 2-degree buffer to ensure toggle happens
             setTargetAngle(Rotation2d.fromDegrees(45));
         } else {
             setTargetAngle(Rotation2d.fromDegrees(0));
@@ -91,7 +96,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns the actual arm angle from the built-in NEO 550 encoder.
+     * Returns the actual arm angle from the built-in NEO encoder.
      */
     public Rotation2d getArmAngle() {
         return Rotation2d.fromDegrees(integratedEncoder.getPosition());
@@ -105,8 +110,10 @@ public class ArmSubsystem extends SubsystemBase {
             double currentAngle = getArmAngle().getDegrees();
             double target = getTargetAngle().getDegrees();
 
+            System.out.println("Current: " + currentAngle + " | Target: " + target);
+
             // If close to target, toggle to the other position
-            if (Math.abs(currentAngle - target) < 1.0) {
+            if (Math.abs(currentAngle - target) < 2.0) { // Increase threshold from 1.0 to 2.0
                 toggleTargetAngle();
             }
         }).repeatedly();
@@ -115,6 +122,7 @@ public class ArmSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         // Debugging: Print the current arm position
+        System.out.println("Raw Encoder Position: " + integratedEncoder.getPosition());
         System.out.println("Arm Angle: " + getArmAngle().getDegrees());
     }
 }
