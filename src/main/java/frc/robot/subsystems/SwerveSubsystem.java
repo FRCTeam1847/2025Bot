@@ -35,9 +35,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -93,10 +90,12 @@ public class SwerveSubsystem extends SubsystemBase {
    * Enable vision odometry updates while driving.
    */
   private final boolean visionDriveTest = false;
-  /**
-   * PhotonVision class to keep an accurate odometry.
-   */
-  // private Vision vision;
+
+  private boolean reduceAcceleration = false; // Boolean flag to control max acceleration
+
+  public void setReduceAcceleration(boolean reduce) {
+    reduceAcceleration = reduce;
+  }
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -155,7 +154,6 @@ public class SwerveSubsystem extends SubsystemBase {
         new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
             Rotation2d.fromDegrees(0)));
   }
-
 
   @Override
   public void periodic() {
@@ -312,9 +310,10 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return PathFinding command
    */
   public Command driveToPose(Pose2d pose) {
+    double maxAcceleration = reduceAcceleration ? 2.0 : 4.0; // Reduce max acceleration if true
     // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumChassisVelocity(), 4.0,
+        swerveDrive.getMaximumChassisVelocity(), maxAcceleration,
         swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
@@ -456,10 +455,11 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
       DoubleSupplier angularRotationX) {
     return run(() -> {
+      double accelerationFactor = reduceAcceleration ? 0.5 : 1.0; // Scale speed if limiting acceleration
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity() * accelerationFactor,
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity() * accelerationFactor), 0.8),
           Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
           true,
           false);

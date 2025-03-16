@@ -188,7 +188,7 @@ public class RobotContainer {
                 controller.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
 
-                 controller.R1().onTrue(NamedCommands.getCommand("ToggleAlgae"));
+                controller.R1().onTrue(NamedCommands.getCommand("ToggleAlgae"));
                 controller.L1().onTrue(NamedCommands.getCommand("Home"));
 
                 controller.cross().whileTrue(NamedCommands.getCommand("L1"))
@@ -212,7 +212,6 @@ public class RobotContainer {
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
 
-
         }
 
         /**
@@ -234,12 +233,24 @@ public class RobotContainer {
                         System.out.println("Cancelling ScoreAtLevelCommand...");
                         activeScoreCommand.cancel();
                         activeScoreCommand = null;
+                        
+                        // Restore normal acceleration when canceling
+                        drivebase.setReduceAcceleration(false);
                 }
         }
 
         private void startScoreCommand(Levels level) {
                 cancelActiveScoreCommand(); // Ensure no other ScoreAtLevelCommand is running
-                activeScoreCommand = manipulatorSubsystem.ScoreAtLevelCommand(level);
+
+                // Reduce acceleration if we are scoring at L3 or L4
+                boolean reduceAcceleration = (level == Levels.L3 || level == Levels.L4);
+                drivebase.setReduceAcceleration(reduceAcceleration);
+
+                activeScoreCommand = manipulatorSubsystem.ScoreAtLevelCommand(level)
+                                .finallyDo((interrupted) -> {
+                                        // Restore normal acceleration after scoring is complete
+                                        drivebase.setReduceAcceleration(false);
+                                });
                 activeScoreCommand.schedule();
         }
 }
