@@ -33,7 +33,7 @@ public final class Constants {
 
   public static final double ROT_SETPOINT_REEF_ALIGNMENT = 0; // Rotation
   public static final double ROT_TOLERANCE_REEF_ALIGNMENT = 1;
-  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.4; // Vertical pose
+  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.3; // Vertical pose
   public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.01;
   public static final double Y_SETPOINT_REEF_ALIGNMENT_LEFT = -0.75; // Horizontal pose
   public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.03; 
